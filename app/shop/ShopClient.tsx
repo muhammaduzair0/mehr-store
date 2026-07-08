@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
+import { CloseIcon } from "@/components/icons";
 import { CATEGORIES, PRODUCTS } from "@/lib/data";
 
 const PRICE_RANGES = [
@@ -59,6 +60,23 @@ export default function ShopClient() {
     setPrices(new Set());
   }
 
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [filtersOpen]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setFiltersOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
   const activeCategory = CATEGORIES[cat];
 
   return (
@@ -76,12 +94,26 @@ export default function ShopClient() {
       </section>
 
       <div className="wrap shop-layout">
+        <div
+          className={"scrim filter-scrim" + (filtersOpen ? " open" : "")}
+          onClick={() => setFiltersOpen(false)}
+        />
         <aside className={"filters" + (filtersOpen ? " open" : "")}>
           <div className="filter-head">
             <h2 className="eyebrow">Filter</h2>
-            <button className="ulink reveal" onClick={clearAll}>
-              Clear all
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+              <button className="ulink reveal" onClick={clearAll}>
+                Clear all
+              </button>
+              <button
+                type="button"
+                className="icon-btn filter-close"
+                aria-label="Close filters"
+                onClick={() => setFiltersOpen(false)}
+              >
+                <CloseIcon />
+              </button>
+            </div>
           </div>
 
           <div className="filter-group">

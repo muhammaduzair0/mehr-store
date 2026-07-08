@@ -1,12 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { NAV } from "@/lib/data";
 import { MobileMenuUI, useMobileMenuOpen } from "@/lib/ui";
 import { CloseIcon } from "./icons";
 
 export default function MobileMenu() {
   const open = useMobileMenuOpen();
+
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") MobileMenuUI.close();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <div className={"mmenu" + (open ? " open" : "")}>

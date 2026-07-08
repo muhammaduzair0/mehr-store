@@ -489,6 +489,8 @@ textarea {
   display: flex;
   flex-direction: column;
   padding: 24px var(--gutter);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .mmenu.open {
   transform: none;
@@ -500,6 +502,7 @@ textarea {
   height: 52px;
 }
 .mmenu a.mm-link {
+  display: block;
   font-size: 26px;
   font-weight: 300;
   padding: 16px 0;
@@ -1269,12 +1272,26 @@ textarea {
   padding: 80px 0;
 }
 
+.filter-close {
+  display: none;
+}
+.filter-scrim {
+  display: none;
+}
+
 @media (max-width: 860px) {
   .shop-layout {
     grid-template-columns: 1fr;
   }
   .filter-toggle {
     display: inline-flex;
+  }
+  .filter-close {
+    display: inline-flex;
+  }
+  .filter-scrim {
+    display: block;
+    z-index: 94;
   }
   .filters {
     position: fixed;
