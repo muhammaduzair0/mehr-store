@@ -25,22 +25,69 @@ export default function CartPage() {
     window.scrollTo(0, 0);
   }
 
-  function placeOrder(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const email = (form.elements.namedItem("email") as HTMLInputElement)?.value || "your email";
-    const fn = (form.elements.namedItem("fn") as HTMLInputElement)?.value || "";
-    const ln = (form.elements.namedItem("ln") as HTMLInputElement)?.value || "";
-    const name = (fn + " " + ln).trim();
-    const total = subtotal + (subtotal >= FREE_SHIP ? 0 : shipCost);
-    const no = "#MR-" + Math.floor(100000 + Math.random() * 899999);
-    Orders.add({ no, date: Date.now(), email, total, status: "Processing", items });
-    if (!Auth.user()) Auth.setUser({ name: name || "Friend", email });
-    Cart.clear();
-    setConfirmation({ email, no });
-    setStep("done");
-    window.scrollTo(0, 0);
+async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const email     = (form.elements.namedItem("email") as HTMLInputElement)?.value || "";
+  const fn        = (form.elements.namedItem("fn")    as HTMLInputElement)?.value || "";
+  const ln        = (form.elements.namedItem("ln")    as HTMLInputElement)?.value || "";
+  const addr      = (form.elements.namedItem("addr")  as HTMLInputElement)?.value || "";
+  const city      = (form.elements.namedItem("city")  as HTMLInputElement)?.value || "";
+  const zip       = (form.elements.namedItem("zip")   as HTMLInputElement)?.value || "";
+  const country   = (form.elements.namedItem("country") as HTMLInputElement)?.value || "";
+  const total     = subtotal + (subtotal >= FREE_SHIP ? 0 : shipCost);
+  const no        = "#MR-" + Math.floor(100000 + Math.random() * 899999);
+
+  try {
+    // Send order to WooCommerce
+    await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payment_method:       "cod",
+        payment_method_title: "Cash on Delivery",
+        set_paid:             false,
+        billing: {
+          first_name: fn,
+          last_name:  ln,
+          address_1:  addr,
+          city,
+          postcode:   zip,
+          country,
+          email,
+        },
+        shipping: {
+          first_name: fn,
+          last_name:  ln,
+          address_1:  addr,
+          city,
+          postcode:   zip,
+          country,
+        },
+        line_items: items.map((i) => ({
+          product_id: i.id,
+          quantity:   i.qty,
+        })),
+        shipping_lines: [{
+          method_id:    shipCost > 0 ? "flat_rate" : "free_shipping",
+          method_title: shipCost > 0 ? "Express"   : "Standard",
+          total:        String(shipCost),
+        }],
+      }),
+    });
+  } catch (err) {
+    console.error("Order failed:", err);
   }
+
+  // Always complete locally
+  const name = (fn + " " + ln).trim();
+  Orders.add({ no, date: Date.now(), email, total, status: "Processing", items });
+  if (!Auth.user()) Auth.setUser({ name: name || "Friend", email });
+  Cart.clear();
+  setConfirmation({ email, no });
+  setStep("done");
+  window.scrollTo(0, 0);
+}
 
   return (
     <main className="wrap cart-page">

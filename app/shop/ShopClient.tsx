@@ -1,93 +1,117 @@
 "use client";
 
+import { WCProduct, WCCategory } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 import { CloseIcon } from "@/components/icons";
-import { CATEGORIES, PRODUCTS } from "@/lib/data";
 
 const PRICE_RANGES = [
-  { value: "0-50", label: "Under $50" },
-  { value: "50-100", label: "$50 – $100" },
-  { value: "100-160", label: "$100 – $160" },
-  { value: "160-9999", label: "$160+" },
+  { value: "0-2000",       label: "Under Rs 2,000"      },
+  { value: "2000-3500",    label: "Rs 2,000 – Rs 3,500" },
+  { value: "3500-5000",    label: "Rs 3,500 – Rs 5,000" },
+  { value: "5000-99999",   label: "Rs 5,000+"           },
 ];
 
 type SortKey = "featured" | "price-asc" | "price-desc" | "name";
+
 
 export default function ShopClient() {
   const params = useSearchParams();
   const startCat = params.get("category") || "all";
 
-  const [cat, setCat] = useState(startCat);
-  const [fams, setFams] = useState<Set<string>>(new Set());
-  const [prices, setPrices] = useState<Set<string>>(new Set());
-  const [sort, setSort] = useState<SortKey>("featured");
+  const [products, setProducts]     = useState<WCProduct[]>([]);
+  const [categories, setCategories] = useState<WCCategory[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [cat, setCat]               = useState(startCat);
+  const [prices, setPrices]         = useState<Set<string>>(new Set());
+  const [sort, setSort]             = useState<SortKey>("featured");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const families = useMemo(() => [...new Set(PRODUCTS.map((p) => p.family))].sort(), []);
+  // Fetch products and categories from WooCommerce API
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true)
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetch('/api/products?per_page=100'),
+          fetch('/api/categories'),
+        ])
+        const productsData   = await productsRes.json()
+        const categoriesData = await categoriesRes.json()
 
-  function toggleSet(set: Set<string>, value: string, setter: (s: Set<string>) => void) {
-    const next = new Set(set);
-    if (next.has(value)) next.delete(value);
-    else next.add(value);
-    setter(next);
+        setProducts(productsData)
+        // Filter out uncategorized
+        setCategories(categoriesData.filter((c: WCCategory) => c.slug !== 'uncategorized' && c.count > 0))
+      } catch (err) {
+        console.error('Failed to fetch:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  function togglePrice(value: string) {
+    const next = new Set(prices)
+    if (next.has(value)) next.delete(value)
+    else next.add(value)
+    setPrices(next)
   }
 
   function priceMatch(price: number) {
-    if (!prices.size) return true;
+    if (!prices.size) return true
     return [...prices].some((r) => {
-      const [a, b] = r.split("-").map(Number);
-      return price >= a && price <= b;
-    });
+      const [a, b] = r.split("-").map(Number)
+      return price >= a && price <= b
+    })
   }
 
   const list = useMemo(() => {
-    let filtered = PRODUCTS.filter(
-      (p) => (cat === "all" || p.cat === cat) && (!fams.size || fams.has(p.family)) && priceMatch(p.price),
-    );
-    if (sort === "price-asc") filtered = [...filtered].sort((a, b) => a.price - b.price);
-    else if (sort === "price-desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
-    else if (sort === "name") filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
-    else filtered = [...filtered].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-    return filtered;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, fams, prices, sort]);
+    let filtered = products.filter((p) => {
+      const price = parseFloat(p.price)
+      const catMatch = cat === "all" || p.categories.some((c) => c.slug === cat)
+      return catMatch && priceMatch(price)
+    })
+
+    if (sort === "price-asc")  filtered = [...filtered].sort((a, b) => parseFloat(a.price) - parseFloat(b.price))
+    if (sort === "price-desc") filtered = [...filtered].sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
+    if (sort === "name")       filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    if (sort === "featured")   filtered = [...filtered].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
+
+    return filtered
+  }, [products, cat, prices, sort])
 
   function clearAll() {
-    setCat("all");
-    setFams(new Set());
-    setPrices(new Set());
+    setCat("all")
+    setPrices(new Set())
   }
 
   useEffect(() => {
-    if (!filtersOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [filtersOpen]);
+    if (!filtersOpen) return
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = "" }
+  }, [filtersOpen])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setFiltersOpen(false);
+      if (e.key === "Escape") setFiltersOpen(false)
     }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, []);
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [])
 
-  const activeCategory = CATEGORIES[cat];
+  const activeCategory = categories.find((c) => c.slug === cat)
 
   return (
     <main>
       <section className="shop-hero">
         <div className="wrap">
-          <p className="eyebrow">Shop{activeCategory ? " · " + activeCategory.tagline : ""}</p>
-          <h1 className="h-xl">{activeCategory ? activeCategory.label : "All Fragrance"}</h1>
+          <p className="eyebrow">Shop{activeCategory ? " · " + activeCategory.name : ""}</p>
+          <h1 className="h-xl">{activeCategory ? activeCategory.name : "All Fragrance"}</h1>
           <p className="lead" style={{ maxWidth: "48ch", marginTop: 14 }}>
             {activeCategory
-              ? activeCategory.blurb
+              ? `Explore our ${activeCategory.name} collection`
               : "The full house — eau de parfum, body and home, composed in the cool light of morning."}
           </p>
         </div>
@@ -102,9 +126,7 @@ export default function ShopClient() {
           <div className="filter-head">
             <h2 className="eyebrow">Filter</h2>
             <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <button className="ulink reveal" onClick={clearAll}>
-                Clear all
-              </button>
+              <button className="ulink reveal" onClick={clearAll}>Clear all</button>
               <button
                 type="button"
                 className="icon-btn filter-close"
@@ -122,25 +144,10 @@ export default function ShopClient() {
               <input type="radio" name="cat" value="all" checked={cat === "all"} onChange={() => setCat("all")} />
               <span>All products</span>
             </label>
-            {Object.entries(CATEGORIES).map(([key, c]) => (
-              <label className="opt" key={key}>
-                <input type="radio" name="cat" value={key} checked={cat === key} onChange={() => setCat(key)} />
-                <span>{c.label}</span>
-              </label>
-            ))}
-          </div>
-
-          <div className="filter-group">
-            <h3>Scent family</h3>
-            {families.map((f) => (
-              <label className="opt" key={f}>
-                <input
-                  type="checkbox"
-                  name="fam"
-                  checked={fams.has(f)}
-                  onChange={() => toggleSet(fams, f, setFams)}
-                />
-                <span>{f}</span>
+            {categories.map((c) => (
+              <label className="opt" key={c.id}>
+                <input type="radio" name="cat" value={c.slug} checked={cat === c.slug} onChange={() => setCat(c.slug)} />
+                <span>{c.name}</span>
               </label>
             ))}
           </div>
@@ -151,9 +158,8 @@ export default function ShopClient() {
               <label className="opt" key={r.value}>
                 <input
                   type="checkbox"
-                  name="price"
                   checked={prices.has(r.value)}
-                  onChange={() => toggleSet(prices, r.value, setPrices)}
+                  onChange={() => togglePrice(r.value)}
                 />
                 <span>{r.label}</span>
               </label>
@@ -167,7 +173,7 @@ export default function ShopClient() {
               Filter
             </button>
             <span className="result-count">
-              {list.length} {list.length === 1 ? "product" : "products"}
+              {loading ? "Loading..." : `${list.length} ${list.length === 1 ? "product" : "products"}`}
             </span>
             <label className="sort">
               <span>Sort</span>
@@ -179,13 +185,16 @@ export default function ShopClient() {
               </select>
             </label>
           </div>
-          {list.length > 0 ? (
+
+          {loading ? (
+            <div style={{ padding: '60px 0', textAlign: 'center' }}>
+              <p className="muted">Loading products...</p>
+            </div>
+          ) : list.length > 0 ? (
             <ProductGrid products={list} />
           ) : (
             <div className="no-results">
-              <p className="h-md" style={{ fontWeight: 300 }}>
-                Nothing matches those filters.
-              </p>
+              <p className="h-md" style={{ fontWeight: 300 }}>Nothing matches those filters.</p>
               <button className="btn btn-outline" style={{ marginTop: 20 }} onClick={clearAll}>
                 Clear filters
               </button>
@@ -194,5 +203,5 @@ export default function ShopClient() {
         </section>
       </div>
     </main>
-  );
+  )
 }

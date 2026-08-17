@@ -95,11 +95,13 @@ function createLocalStore<T>(key: string, fallback: T) {
   return { get: getSnapshot, set, subscribe, getSnapshot, getServerSnapshot };
 }
 
-const cartStore = createLocalStore<CartItem[]>("mehr_cart_v1", []);
-const wishStore = createLocalStore<string[]>("mehr_wish_v1", []);
+/* ---------------- store instances ---------------- */
+
+const cartStore   = createLocalStore<CartItem[]>("mehr_cart_v1", []);
+const wishStore   = createLocalStore<string[]>("mehr_wish_v1", []);
 const ordersStore = createLocalStore<Order[]>("mehr_orders_v1", []);
-const userStore = createLocalStore<User | null>("mehr_user", null);
-const addrStore = createLocalStore<Address>("mehr_addr", {});
+const userStore   = createLocalStore<User | null>("mehr_user", null);
+const addrStore   = createLocalStore<Address>("mehr_addr", {});
 
 /* ---------------- Cart ---------------- */
 
@@ -107,27 +109,47 @@ export const Cart = {
   items: () => cartStore.get(),
   count: () => cartStore.get().reduce((n, i) => n + i.qty, 0),
   subtotal: () => cartStore.get().reduce((s, i) => s + i.price * i.qty, 0),
-  add(id: string, ml?: number | null, qty = 1) {
-    const p = findProduct(id);
-    if (!p) return;
-    const size = p.sizes.find((s) => s.ml === ml) || p.sizes[0];
+
+  addWC(product: { id: number; name: string; price: string; categories?: { slug: string }[]; images?: { src: string }[] }, qty = 1) {
     const cart = cartStore.get().slice();
-    const key = id + ":" + (size.ml ?? "");
+    const key  = String(product.id);
     const existing = cart.find((i) => i.key === key);
-    if (existing) existing.qty += qty;
-    else
+    if (existing) {
+      existing.qty += qty;
+    } else {
       cart.push({
         key,
-        id,
-        name: p.name,
-        cat: p.cat,
-        type: p.type,
-        ml: size.ml,
-        price: size.price,
+        id:    String(product.id),
+        name:  product.name,
+        cat:   product.categories?.[0]?.slug || "",
+        type:  "Eau de Parfum",
+        ml:    null,
+        price: parseFloat(product.price) || 0,
         qty,
       });
+    }
     cartStore.set(cart);
   },
+
+  add(id: string, ml?: number | null, qty = 1) {
+    const p = findProduct(id);
+    if (p) {
+      const size = p.sizes.find((s) => s.ml === ml) || p.sizes[0];
+      const cart = cartStore.get().slice();
+      const key  = id + ":" + (size.ml ?? "");
+      const existing = cart.find((i) => i.key === key);
+      if (existing) existing.qty += qty;
+      else cart.push({ key, id, name: p.name, cat: p.cat, type: p.type, ml: size.ml, price: size.price, qty });
+      cartStore.set(cart);
+    } else {
+      const cart = cartStore.get().slice();
+      const existing = cart.find((i) => i.key === id);
+      if (existing) existing.qty += qty;
+      else cart.push({ key: id, id, name: id, cat: "", type: "", ml: null, price: 0, qty });
+      cartStore.set(cart);
+    }
+  },
+
   setQty(key: string, qty: number) {
     let cart = cartStore.get().slice();
     const it = cart.find((i) => i.key === key);
@@ -136,9 +158,11 @@ export const Cart = {
     if (it.qty <= 0) cart = cart.filter((i) => i.key !== key);
     cartStore.set(cart);
   },
+
   remove(key: string) {
     cartStore.set(cartStore.get().filter((i) => i.key !== key));
   },
+
   clear() {
     cartStore.set([]);
   },

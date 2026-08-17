@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
-import { CATEGORIES } from "@/lib/data";
 import { money } from "@/lib/format";
 import {
   Address,
@@ -12,7 +11,6 @@ import {
   Auth,
   Order,
   Orders,
-  findWishProducts,
   useAddress,
   useOrders,
   useUser,
@@ -38,16 +36,7 @@ function seedOnce() {
       status: "Delivered",
       items: [
         { key: "noor:50", id: "noor", name: "Noor", cat: "women", type: "Eau de Parfum", ml: 50, price: 145, qty: 1 },
-        {
-          key: "oud-noir:220",
-          id: "oud-noir",
-          name: "Oud Noir Candle",
-          cat: "candles",
-          type: "Scented Candle",
-          ml: 220,
-          price: 58,
-          qty: 1,
-        },
+        { key: "oud-noir:220", id: "oud-noir", name: "Oud Noir Candle", cat: "candles", type: "Scented Candle", ml: 220, price: 58, qty: 1 },
       ],
     });
   }
@@ -71,7 +60,7 @@ function OrderCard({ o }: { o: Order }) {
           {items.slice(0, 4).map((i, idx) => (
             <div className="oc-thumb" key={idx}>
               <div className="ph">
-                <span className="ph-tag">{CATEGORIES[i.cat]?.label || ""}</span>
+                <span className="ph-tag">{i.cat || ""}</span>
               </div>
             </div>
           ))}
@@ -96,10 +85,27 @@ export default function AccountClient() {
   const [tab, setTab] = useState<Tab>((params.get("tab") as Tab) || "overview");
   const [addrSaved, setAddrSaved] = useState(false);
   const [detailsSaved, setDetailsSaved] = useState(false);
+  const [wishProducts, setWishProducts] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) seedOnce();
   }, [user]);
+
+  useEffect(() => {
+    if (!wishlist.length) {
+      setWishProducts([]);
+      return;
+    }
+    async function fetchWishProducts() {
+      const results = await Promise.all(
+        wishlist.map((id) =>
+          fetch(`/api/products/${id}`).then((r) => r.json()).catch(() => null)
+        )
+      );
+      setWishProducts(results.filter(Boolean));
+    }
+    fetchWishProducts();
+  }, [wishlist]);
 
   function submitAuth(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -195,8 +201,6 @@ export default function AccountClient() {
     );
   }
 
-  const wishProducts = findWishProducts(wishlist);
-
   return (
     <main className="wrap acct-page">
       <section>
@@ -272,15 +276,11 @@ export default function AccountClient() {
                   orders.map((o) => <OrderCard o={o} key={o.no} />)
                 ) : (
                   <div className="acct-empty">
-                    <p className="h-md" style={{ fontWeight: 300 }}>
-                      No orders yet
-                    </p>
+                    <p className="h-md" style={{ fontWeight: 300 }}>No orders yet</p>
                     <p className="muted" style={{ margin: "10px 0 22px" }}>
                       When you place an order it will appear here.
                     </p>
-                    <Link className="btn btn-outline" href="/shop">
-                      Start shopping
-                    </Link>
+                    <Link className="btn btn-outline" href="/shop">Start shopping</Link>
                   </div>
                 )}
               </section>
@@ -293,15 +293,11 @@ export default function AccountClient() {
                   <ProductGrid products={wishProducts} />
                 ) : (
                   <div className="acct-empty">
-                    <p className="h-md" style={{ fontWeight: 300 }}>
-                      Nothing saved yet
-                    </p>
+                    <p className="h-md" style={{ fontWeight: 300 }}>Nothing saved yet</p>
                     <p className="muted" style={{ margin: "10px 0 22px" }}>
                       Tap the heart on any product to keep it here.
                     </p>
-                    <Link className="btn btn-outline" href="/shop">
-                      Browse the collection
-                    </Link>
+                    <Link className="btn btn-outline" href="/shop">Browse the collection</Link>
                   </div>
                 )}
               </section>
@@ -335,18 +331,11 @@ export default function AccountClient() {
                       <label htmlFor="a-zip">Postcode</label>
                     </div>
                     <div className="field">
-                      <input
-                        id="a-country"
-                        name="a-country"
-                        placeholder=" "
-                        defaultValue={address.country || "United Kingdom"}
-                      />
+                      <input id="a-country" name="a-country" placeholder=" " defaultValue={address.country || "United Kingdom"} />
                       <label htmlFor="a-country">Country</label>
                     </div>
                   </div>
-                  <button className="btn btn-primary" type="submit">
-                    Save address
-                  </button>
+                  <button className="btn btn-primary" type="submit">Save address</button>
                   {addrSaved && <span className="save-ok">Saved ✓</span>}
                 </form>
               </section>
@@ -368,9 +357,7 @@ export default function AccountClient() {
                     <input id="d-pass" type="password" placeholder=" " defaultValue="********" />
                     <label htmlFor="d-pass">Password</label>
                   </div>
-                  <button className="btn btn-primary" type="submit">
-                    Save changes
-                  </button>
+                  <button className="btn btn-primary" type="submit">Save changes</button>
                   {detailsSaved && <span className="save-ok">Saved ✓</span>}
                 </form>
               </section>

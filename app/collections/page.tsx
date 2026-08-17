@@ -1,13 +1,42 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CATEGORIES, PRODUCTS } from "@/lib/data";
 import { money } from "@/lib/format";
 
 export const metadata = { title: "Collections — Mehr" };
+const ORDER = ["women", "men", "unisex-perfumes"];
 
-const ORDER = ["women", "men", "lotions", "candles", "gifts"];
+const STATIC_CATS: Record<string, { label: string; tagline: string; blurb: string }> = {
+  women: {
+    label: "Women",
+    tagline: "Eau de Parfum",
+    blurb: "Florals, musks and orientals composed for presence.",
+  },
+  men: {
+    label: "Men",
+    tagline: "Eau de Parfum",
+    blurb: "Woods, leathers and aromatics with quiet confidence.",
+  },
+  "unisex-perfumes": {
+    label: "Unisex Perfumes",
+    tagline: "Eau de Parfum",
+    blurb: "Scents that belong to everyone — bold, balanced, boundary-free.",
+  },
+};
 
-export default function CollectionsPage() {
+async function getProducts() {
+  try {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products?per_page=100`, {
+      cache: 'no-store',
+    });
+    return res.ok ? res.json() : [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function CollectionsPage() {
+  const products = await getProducts();
+
   return (
     <main>
       <section className="coll-hero">
@@ -25,11 +54,15 @@ export default function CollectionsPage() {
 
       <div className="coll-list">
         {ORDER.map((key, i) => {
-          const c = CATEGORIES[key];
-          const items = PRODUCTS.filter((p) => p.cat === key);
-          const from = Math.min(...items.map((p) => p.price));
-          const num = String(i + 1).padStart(2, "0");
+          const c = STATIC_CATS[key];
+          const items = products.filter((p: any) =>
+            p.categories?.some((cat: any) => cat.slug === key)
+          );
+          const prices = items.map((p: any) => parseFloat(p.price)).filter(Boolean);
+          const from   = prices.length ? Math.min(...prices) : 0;
+          const num    = String(i + 1).padStart(2, "0");
           const reversed = i % 2 === 1;
+
           return (
             <section className={"coll-row" + (reversed ? " rev" : "")} key={key}>
               <div className="wrap coll-grid">
@@ -39,17 +72,13 @@ export default function CollectionsPage() {
                 </Link>
                 <div className="coll-copy">
                   <p className="eyebrow">{c.tagline}</p>
-                  <h2 className="h-xl" style={{ margin: "14px 0 18px" }}>
-                    {c.label}
-                  </h2>
-                  <p className="lead" style={{ maxWidth: "42ch" }}>
-                    {c.blurb}
-                  </p>
+                  <h2 className="h-xl" style={{ margin: "14px 0 18px" }}>{c.label}</h2>
+                  <p className="lead" style={{ maxWidth: "42ch" }}>{c.blurb}</p>
                   <p className="coll-meta">
-                    {items.length} scents · from {money(from)}
+                    {items.length} scents{from > 0 ? ` · from ${money(from)}` : ""}
                   </p>
                   <div className="coll-tags">
-                    {items.slice(0, 4).map((p) => (
+                    {items.slice(0, 4).map((p: any) => (
                       <Link key={p.id} href={`/product?id=${p.id}`}>
                         {p.name}
                       </Link>
@@ -64,27 +93,6 @@ export default function CollectionsPage() {
           );
         })}
       </div>
-
-      <section className="gifting">
-        <div className="wrap center" style={{ maxWidth: "46ch", marginInline: "auto" }}>
-          <p className="eyebrow" style={{ color: "oklch(0.7 0.015 250)" }}>
-            Not sure where to start?
-          </p>
-          <h2 className="h-xl" style={{ margin: "18px 0 22px", color: "var(--on-ink)" }}>
-            Try the Discovery Set
-          </h2>
-          <p className="lead" style={{ color: "oklch(0.82 0.012 250)" }}>
-            Five signature scents in travel vials — its cost credited toward your first full-size bottle.
-          </p>
-          <Link
-            className="btn"
-            href="/product?id=discovery"
-            style={{ marginTop: 30, background: "var(--on-ink)", color: "var(--ink)" }}
-          >
-            Shop the set — $40
-          </Link>
-        </div>
-      </section>
     </main>
   );
 }

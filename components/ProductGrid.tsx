@@ -1,7 +1,7 @@
-import { Product } from "@/lib/data";
+import { WCProduct } from "@/lib/types";
 import ProductCard from "./ProductCard";
 
-export default function ProductGrid({ products, className }: { products: Product[]; className?: string }) {
+export default function ProductGrid({ products, className }: { products: WCProduct[]; className?: string }) {
   return (
     <div className={"grid-products" + (className ? " " + className : "")}>
       {products.map((p) => (
