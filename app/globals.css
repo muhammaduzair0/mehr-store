@@ -6,6 +6,7 @@
 :root {
   /* color — cool whites, ice surfaces, deep navy ink */
   --ink: oklch(0.22 0.038 258);
+  --navy-deep: oklch(0.14 0.045 258);
   --ink-2: oklch(0.34 0.032 258);
   --muted: oklch(0.5 0.022 256);
   --faint: oklch(0.64 0.016 255);
@@ -15,7 +16,6 @@
   --surface: oklch(0.978 0.006 245);
   --surface-2: oklch(0.952 0.011 242);
   --surface-3: oklch(0.92 0.016 240);
-  --navy-deep: oklch(0.18 0.04 258);
   --accent: oklch(0.5 0.078 250);
   --on-ink: oklch(0.988 0.005 245);
 
@@ -41,6 +41,11 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Belt-and-braces: a single un-clipped full-bleed section anywhere on the
+     site (carousels, marquees, off-canvas drawers) can otherwise widen the
+     whole page's scrollable area by a few px, showing as a sliver at the
+     right edge on every section, not just the offending one. */
+  overflow-x: hidden;
 }
 body {
   margin: 0;
@@ -448,16 +453,18 @@ textarea {
 .grid-products {
   display: grid;
   gap: clamp(22px, 2.8vw, 40px) clamp(16px, 2vw, 28px);
-  grid-template-columns: repeat(4, 1fr);
+  /* minmax(0, 1fr), not bare 1fr — a bare 1fr track won't shrink below its
+     content's min-content width, which overflowed the grid on narrow screens. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 @media (max-width: 1000px) {
   .grid-products {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (max-width: 720px) {
   .grid-products {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -474,6 +481,11 @@ textarea {
   background: var(--surface);
   display: block;
 }
+.card-media-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
 .card .card-media .ph {
   position: absolute;
   inset: 0;
@@ -486,11 +498,17 @@ textarea {
 .card:hover .card-media img {
   transform: scale(1.038);
 }
-.card .badge {
+.card-badges {
   position: absolute;
   top: 12px;
   left: 12px;
   z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.card .badge {
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -499,6 +517,40 @@ textarea {
   color: var(--ink);
   padding: 5px 10px;
   border: 1px solid var(--line);
+}
+.card-rank {
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-ink);
+  background: oklch(0.18 0.035 258 / 0.82);
+  backdrop-filter: blur(4px);
+  padding: 6px 11px;
+  border-radius: 20px;
+}
+.card-media-alt {
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+}
+.card:hover .card-media-alt {
+  opacity: 1;
+}
+.card-sold-out .card-media {
+  opacity: 0.55;
+}
+.card-sold-out .card-media img {
+  filter: grayscale(0.5);
+}
+.card-sold-out:hover .card-media .ph,
+.card-sold-out:hover .card-media img {
+  transform: none;
+}
+.badge-sold-out {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-color: var(--ink);
 }
 .wish-btn {
   position: absolute;
@@ -591,6 +643,12 @@ textarea {
   margin-top: 10px;
   font-weight: 500;
 }
+.card-discount {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: oklch(0.5 0.16 25);
+}
 @media (max-width: 720px) {
   .card .quick-add {
     opacity: 1;
@@ -666,7 +724,10 @@ textarea {
   border-bottom: 1px solid var(--line);
 }
 .line-item .li-media {
+  position: relative;
+  overflow: hidden;
   aspect-ratio: 4/5;
+  background: var(--surface);
 }
 .line-item .li-name {
   font-size: 14.5px;
@@ -793,36 +854,6 @@ textarea {
 .foot-col li {
   margin-bottom: 12px;
   font-size: 14px;
-}
-.news {
-  margin-top: 20px;
-}
-.news-field {
-  display: flex;
-  border-bottom: 1px solid oklch(1 0 0 / 0.2);
-}
-.news-field input {
-  background: none;
-  border: 0;
-  flex: 1;
-  padding: 11px 0;
-  color: var(--on-ink);
-  outline: none;
-  font-size: 14px;
-}
-.news-field input::placeholder {
-  color: oklch(0.62 0.016 250);
-}
-.news-field button {
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--on-ink);
-  transition: opacity 0.2s;
-}
-.news-field button:hover {
-  opacity: 0.7;
 }
 .foot-bottom {
   display: flex;
@@ -1130,12 +1161,335 @@ textarea {
   padding-block: clamp(40px, 5.5vw, 70px) clamp(22px, 3vw, 38px);
   border-bottom: 1px solid var(--line);
 }
+.shop-hero--dark {
+  background: oklch(0.18 0.04 258);
+  border-bottom: none;
+}
+.shop-hero--dark .eyebrow {
+  color: oklch(0.72 0.02 250);
+}
+.shop-hero--dark .h-xl {
+  color: var(--on-ink);
+}
+.shop-hero--dark .lead {
+  color: oklch(0.8 0.012 250);
+}
+.attr-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid oklch(1 0 0 / 0.12);
+}
+.attr-strip li {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: oklch(0.86 0.015 250);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.attr-strip li::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: oklch(0.72 0.02 250);
+}
+.attr-strip li:first-child::before {
+  display: none;
+}
+.quick-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+.chip {
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: 30px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.chip:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.chip.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.shop-hero--photo {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(360px, 42vw, 520px);
+  /* object-fit: contain letterboxes rather than cropping the bottle out of
+     frame — dark to match the scrim/light-text treatment over the photo. */
+  background: oklch(0.08 0.01 258);
+  border-bottom: none;
+}
+.shop-hero--photo img {
+  z-index: 1;
+}
+.shop-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to top,
+    oklch(0.08 0.01 258 / 0.82) 0%,
+    oklch(0.08 0.01 258 / 0.3) 50%,
+    oklch(0.08 0.01 258 / 0.12) 100%
+  );
+}
+.shop-hero-photo-content {
+  position: relative;
+  z-index: 3;
+  padding-block: clamp(28px, 4vw, 48px);
+}
+.shop-hero-photo-content .h-xl,
+.shop-hero-photo-content .lead {
+  color: var(--on-ink);
+}
+.shop-hero-photo-content .eyebrow {
+  color: oklch(0.85 0.015 250);
+}
+.shop-crumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: oklch(0.82 0.015 250);
+  margin-bottom: 18px;
+}
+.shop-crumb a:hover {
+  color: var(--on-ink);
+}
+
+.shop-faq {
+  border-top: 1px solid var(--line);
+}
+.faq-wrap {
+  max-width: 720px;
+  margin-inline: auto;
+}
+.faq-item {
+  border-bottom: 1px solid var(--line);
+}
+.faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 2px;
+  text-align: left;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--ink);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.faq-plus {
+  position: relative;
+  flex: none;
+  width: 15px;
+  height: 15px;
+}
+.faq-plus::before,
+.faq-plus::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+  transition: transform 0.3s var(--ease);
+}
+.faq-plus::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+.faq-plus::after {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+.faq-plus.open::after {
+  transform: translateX(-50%) rotate(90deg);
+  opacity: 0;
+}
+.faq-a {
+  padding: 0 2px 22px;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 62ch;
+}
+.guide-list {
+  max-width: 780px;
+  margin-inline: auto;
+}
+.guide-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 4px;
+  border-bottom: 1px solid var(--line);
+  transition: opacity 0.2s;
+}
+.guide-row:hover {
+  opacity: 0.7;
+}
+.guide-row .btn {
+  flex: none;
+}
+@media (max-width: 560px) {
+  .guide-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
+.policy-page {
+  padding-block: clamp(36px, 4.5vw, 60px) clamp(64px, 8vw, 108px);
+  max-width: 760px;
+}
+.policy-block {
+  padding-bottom: 40px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+}
+.policy-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.policy-block h2 {
+  margin-bottom: 14px;
+}
+.policy-block p {
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.policy-block p + p {
+  margin-top: 14px;
+}
+.policy-block ul + p,
+.policy-block p + ul {
+  margin-top: 14px;
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(40px, 6vw, 96px);
+  padding-block: clamp(36px, 4.5vw, 60px) clamp(64px, 8vw, 108px);
+  align-items: start;
+}
+.contact-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.contact-channel {
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.contact-channel:last-child {
+  border-bottom: none;
+}
+.contact-link {
+  display: inline-block;
+  margin-top: 8px;
+}
+.contact-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.contact-form {
+  max-width: 560px;
+}
+@media (max-width: 780px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+  margin-top: 28px;
+  padding: 6px 6px 6px 18px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--bg);
+  transition: border-color 0.2s;
+}
+.search-form:focus-within {
+  border-color: var(--ink);
+}
+.search-form svg {
+  flex: none;
+  color: var(--muted);
+}
+.search-form input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font-size: 15px;
+  padding: 10px 0;
+}
+.search-form input:focus {
+  outline: none;
+}
+.search-form .btn {
+  padding: 11px 22px;
+  font-size: 12px;
+}
 .shop-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 240px minmax(0, 1fr);
   gap: clamp(32px, 4.5vw, 64px);
   padding-block: clamp(36px, 4.5vw, 60px) clamp(64px, 8vw, 108px);
   align-items: start;
+}
+.shop-layout--curated {
+  grid-template-columns: minmax(0, 1fr);
+}
+.grid-bestsellers {
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(26px, 3vw, 44px) clamp(18px, 2.2vw, 30px);
+}
+@media (max-width: 1000px) {
+  .grid-bestsellers {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 720px) {
+  .grid-bestsellers {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 .filters {
   position: sticky;
@@ -1229,6 +1583,10 @@ textarea {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
+  /* Flex children don't shrink below their content's min-content width by
+     default — a <select> with long option text otherwise forces this (and
+     its ancestors) wider than the viewport on narrow screens. */
+  min-width: 0;
 }
 .sort select {
   appearance: none;
@@ -1239,6 +1597,8 @@ textarea {
   letter-spacing: 0.06em;
   border-radius: var(--radius);
   cursor: pointer;
+  min-width: 0;
+  max-width: 100%;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23344' stroke-width='1.4'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
@@ -1261,7 +1621,7 @@ textarea {
 
 @media (max-width: 860px) {
   .shop-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .filter-toggle {
     display: inline-flex;
@@ -1333,8 +1693,74 @@ textarea {
   text-transform: uppercase;
   font-weight: 600;
   background: var(--bg);
+  color: var(--ink);
   padding: 6px 11px;
   border: 1px solid var(--line);
+}
+.pdp-badge.sold-out {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-color: var(--ink);
+}
+.pdp-stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--ink);
+  letter-spacing: 1px;
+}
+.rating-input {
+  display: flex;
+  gap: 6px;
+}
+.rating-input button {
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ink);
+  transition: transform 0.15s;
+}
+.rating-input button:hover {
+  transform: scale(1.12);
+}
+.review-form-wrap {
+  max-width: 480px;
+  padding: 24px;
+  margin-bottom: 40px;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+.review-form .field:first-of-type {
+  margin-top: 4px;
+}
+.review-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(22px, 2.8vw, 36px);
+}
+.review-item {
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.review-text {
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin-top: 12px;
+  color: var(--ink-2);
+}
+.review-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 14px;
+}
+@media (max-width: 860px) {
+  .review-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .review-list {
+    grid-template-columns: 1fr;
+  }
 }
 .pdp-thumbs {
   display: grid;
@@ -1362,6 +1788,7 @@ textarea {
   aspect-ratio: 1;
   position: relative;
   overflow: hidden;
+  background: var(--surface);
 }
 .pdp-type {
   font-size: 14px;
@@ -1424,6 +1851,10 @@ textarea {
 }
 .pdp-actions .btn {
   padding-block: 0;
+  /* flex: 1 (set inline) still respects the button text's unwrappable
+     min-content width by default — this lets it actually shrink instead
+     of forcing the whole page wider than the viewport on mobile. */
+  min-width: 0;
 }
 .pdp-assure {
   margin: 32px 0 8px;
@@ -1473,7 +1904,16 @@ textarea {
   transition: max-height 0.4s var(--ease);
 }
 .acc-item.open .acc-body {
-  max-height: 320px;
+  max-height: 2000px;
+}
+.acc-body-inner {
+  padding-bottom: 24px;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+.acc-body-inner p + p {
+  margin-top: 12px;
 }
 .note-pyramid {
   padding-bottom: 8px;
@@ -1490,6 +1930,17 @@ textarea {
   }
   .pdp-gallery {
     position: static;
+  }
+}
+@media (max-width: 480px) {
+  /* The qty stepper (fixed width) + "Add to Cart — Rs X,XXX" (unwrappable
+     text) don't both fit on one row at phone widths — drop the button to
+     its own full-width row rather than truncating or forcing page scroll. */
+  .pdp-actions {
+    flex-wrap: wrap;
+  }
+  .pdp-actions .btn {
+    flex: 1 1 100%;
   }
 }
 
@@ -1530,6 +1981,7 @@ textarea {
   display: block;
   position: relative;
   overflow: hidden;
+  background: var(--surface);
 }
 .cart-row-top {
   display: flex;
@@ -1624,6 +2076,34 @@ textarea {
   background: var(--ink);
   color: var(--on-ink);
 }
+.promo button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.promo-active {
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  padding: 10px 14px;
+  font-size: 13px;
+}
+.promo-active button {
+  border: none;
+  padding: 0;
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  color: var(--muted);
+}
+.promo-active button:hover {
+  background: none;
+  color: var(--ink);
+}
+.promo-error {
+  font-size: 12px;
+  color: oklch(0.42 0.16 25);
+  margin: -12px 0 18px;
+}
 .secure-note {
   text-align: center;
   font-size: 11px;
@@ -1653,7 +2133,8 @@ textarea {
   position: relative;
   margin-bottom: 14px;
 }
-.field input {
+.field input,
+.field textarea {
   width: 100%;
   border: 1px solid var(--line-2);
   background: var(--bg);
@@ -1662,9 +2143,22 @@ textarea {
   border-radius: var(--radius);
   transition: border-color 0.2s;
 }
-.field input:focus {
+.field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+.field input:focus,
+.field textarea:focus {
   outline: none;
   border-color: var(--ink);
+}
+.field input:read-only {
+  color: var(--muted);
+  background: var(--surface);
+  cursor: default;
+}
+.field input:read-only:focus {
+  border-color: var(--line-2);
 }
 .field label {
   position: absolute;
@@ -1677,7 +2171,9 @@ textarea {
   transition: all 0.18s var(--ease);
 }
 .field input:focus + label,
-.field input:not(:placeholder-shown) + label {
+.field input:not(:placeholder-shown) + label,
+.field textarea:focus + label,
+.field textarea:not(:placeholder-shown) + label {
   top: 6px;
   font-size: 10.5px;
   letter-spacing: 0.08em;
@@ -1741,6 +2237,16 @@ textarea {
 .pay-note {
   margin-top: 12px;
   line-height: 1.5;
+}
+.checkout-error {
+  font-size: 13px;
+  line-height: 1.5;
+  color: oklch(0.42 0.16 25);
+  background: oklch(0.42 0.16 25 / 0.08);
+  border: 1px solid oklch(0.42 0.16 25 / 0.3);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: -4px;
 }
 .confirm {
   text-align: center;
@@ -1959,6 +2465,7 @@ textarea {
   aspect-ratio: 4/5;
   position: relative;
   overflow: hidden;
+  background: var(--surface);
 }
 .oc-names {
   font-size: 14px;
@@ -2050,6 +2557,7 @@ textarea {
   aspect-ratio: 4/5;
   overflow: hidden;
   display: block;
+  background: var(--surface);
 }
 .coll-media img {
   transition: transform 0.9s var(--ease);
@@ -2424,6 +2932,12 @@ textarea {
   min-height: 560px;
   max-height: 900px;
   overflow: hidden;
+  /* .hc-image is deliberately shorter than this section (see its own
+     comment) to reserve clear space at the bottom for the dots — this is
+     what shows through that reserved strip. Without it, the strip falls
+     back to the page's own background instead of matching the dark photo,
+     showing as a pale band right behind the dots. */
+  background: oklch(0.08 0.01 258);
 }
 
 .hero-carousel--loading {
@@ -2443,12 +2957,24 @@ textarea {
   100% { background-position: -200% 0; }
 }
 
-/* Full-bleed slide images */
+/* Full-bleed slide images — bottom is reserved (not inset:0) so the image
+   never renders behind the dots. object-fit: contain always fills its box
+   edge-to-edge on this wide-relative-to-portrait-photo layout (there's no
+   spare vertical room to redistribute regardless of object-position), so
+   without this gap, each photo's own baked-in caption text — which sits
+   near the bottom of the source photo — ends up wherever the box's bottom
+   edge happens to be, directly under the dots, at any hero height. */
 .hc-image {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 64px;
   opacity: 0;
   transition: opacity 1.2s ease-in-out;
+  /* Product photos are shot tall; object-fit: contain letterboxes rather than
+     cropping the bottle out of frame — this blends with their dark backdrops. */
+  background: oklch(0.08 0.01 258);
 }
 
 .hc-image.active { opacity: 1; z-index: 1; }
@@ -2576,18 +3102,19 @@ textarea {
 /* Mobile */
 @media (max-width: 860px) {
   .hero-carousel {
-    height: 100vh;
+    height: 85vh;
     min-height: 480px;
   }
 
   .hc-content {
     justify-content: center;
-    padding: 0 24px;
+    padding: 0 24px 56px;
   }
 
   .hc-content-inner {
     width: 100%;
     align-items: center;
+    justify-content: flex-end;
     text-align: center;
   }
 
@@ -2627,7 +3154,7 @@ textarea {
 
 .dcv-viewport {
   position: relative;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 
 .dcv-track {
@@ -2686,6 +3213,14 @@ textarea {
 .dcv-slide:not(.active) .dcv-price {
   background: transparent;
   color: oklch(0.85 0.01 250);
+}
+.dcv-discount {
+  margin-left: 6px;
+  color: oklch(0.5 0.16 25);
+}
+.dcv-slide:not(.active) .dcv-discount {
+  color: inherit;
+  opacity: 0.8;
 }
 
 .dcv-media {
@@ -2807,13 +3342,31 @@ textarea {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  /* Unconstrained, each tile grew to ~half the full page width — at 1:1
+     that's a huge tile, and two stacked rows of them sprawled well past
+     one screen's height, so seeing the whole section took several separate
+     scrolls. Capped so the section stays compact on wide screens.
+     .cat-showcase is flex-direction: column, so margin-inline: auto alone
+     drops this row's default cross-axis stretch — width: 100% restores a
+     definite width for the 1fr tracks (and this row) to resolve against,
+     with max-width still capping it. */
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;
 }
 
 .cat-tile-lg {
   position: relative;
   display: block;
-  aspect-ratio: 5 / 4;
+  /* 4/5 made this taller than most screens' viewport, so object-fit: contain
+     — which fills the box edge to edge with no top buffer — put the bottle's
+     cap right at the tile's top edge, where the sticky header would eat into
+     it while scrolling. */
+  aspect-ratio: 1 / 1;
   overflow: hidden;
+  /* object-fit: contain (set in CategoryShowcase.tsx) letterboxes rather
+     than cropping the bottle out of frame. Light, matching the rest of the
+     site's product tiles — the "FOR HER" badge has its own opaque pill. */
   background: var(--surface);
   border-radius: 10px;
 }
@@ -2858,7 +3411,7 @@ textarea {
     grid-template-columns: 1fr;
   }
   .cat-tile-lg {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
   }
 }
 
@@ -2870,6 +3423,11 @@ textarea {
   grid-template-columns: 1.1fr 1fr;
   gap: clamp(16px, 2vw, 28px);
   align-items: stretch;
+  /* Capped for the same reason as .cat-row — on wide screens this grid (and
+     the 1:1 tiles inside .bs-side) grew tall enough that the section needed
+     several scrolls to see end to end. */
+  max-width: 1000px;
+  margin-inline: auto;
 }
 
 .bs-hero {
@@ -2878,8 +3436,15 @@ textarea {
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
+  /* object-fit: contain (set in BestSellers.tsx) letterboxes rather than
+     cropping the bottle out of frame. Light — the ::after gradient below is
+     strong enough on its own to keep the name/price legible at the bottom. */
   background: var(--surface);
-  min-height: 560px;
+  /* Kept below .bs-side's natural stretched height (2 rows of ~1:1 tiles) so
+     that height wins and both columns match cleanly — a bigger min-height
+     here would instead force .bs-side's tiles to stretch taller than their
+     own aspect-ratio, distorting them. */
+  min-height: 420px;
 }
 
 .bs-hero-media {
@@ -2920,7 +3485,7 @@ textarea {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--on-ink);
-  background: oklch(0.16 0.02 258 / 0.55);
+  background: oklch(0.16 0.02 258 / 0.72);
   backdrop-filter: blur(6px);
   padding: 8px 16px;
   border-radius: 25px;
@@ -2973,6 +3538,11 @@ textarea {
   font-weight: 500;
   color: var(--on-ink);
 }
+.bs-price .card-discount {
+  /* the default dark-red discount tag is illegible over these dark photo
+     backgrounds — a warm gold reads clearly against both the image and overlay. */
+  color: oklch(0.78 0.14 75);
+}
 
 .bs-shop-btn {
   padding: 11px 24px;
@@ -2992,12 +3562,20 @@ textarea {
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
+  /* object-fit: contain (set in BestSellers.tsx) letterboxes rather than
+     cropping the bottle out of frame. Light — the ::after gradient below is
+     strong enough on its own to keep the name/price legible at the bottom. */
   background: var(--surface);
-  min-height: 265px;
+  /* 4/5 made this (and .bs-hero, which stretches to match) taller than most
+     screens' viewport, so object-fit: contain — which fills the box edge to
+     edge with no top buffer — put the bottle's cap right at the tile's top
+     edge, where the sticky header would eat into it while scrolling. */
+  aspect-ratio: 1 / 1;
 }
 
 .bs-tile:nth-child(3) {
   grid-column: 1 / span 2;
+  aspect-ratio: 8 / 5;
 }
 
 .bs-tile-media {
@@ -3062,6 +3640,7 @@ textarea {
   }
   .bs-tile:nth-child(3) {
     grid-column: auto;
+    aspect-ratio: 4 / 5;
   }
 }
 
@@ -3186,4 +3765,85 @@ textarea {
   .rv-card {
     flex-basis: 82vw;
   }
+}
+
+/* ============================================================
+   BLOG / JOURNAL
+   ============================================================ */
+.blog-grid {
+  display: grid;
+  gap: clamp(28px, 3vw, 44px) clamp(20px, 2.4vw, 32px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: clamp(20px, 4vw, 48px) 0;
+}
+@media (max-width: 860px) {
+  .blog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .blog-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.blog-card-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: var(--surface);
+  margin-bottom: 16px;
+}
+.blog-card-date {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 600;
+}
+.blog-card-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 500;
+  margin: 8px 0 8px;
+  line-height: 1.3;
+}
+.blog-card-title a {
+  color: var(--ink);
+}
+.blog-card-excerpt {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 12px;
+}
+.blog-post {
+  max-width: 760px;
+  padding-bottom: 90px;
+}
+.blog-post-media {
+  position: relative;
+  aspect-ratio: 16/9;
+  margin: 28px 0 8px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.blog-post-body {
+  margin-top: 28px;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.blog-post-body p {
+  margin: 0 0 20px;
+}
+.blog-post-body img {
+  max-width: 100%;
+  height: auto;
+  margin: 8px 0 24px;
+}
+.blog-post-body h2,
+.blog-post-body h3 {
+  font-family: var(--font-display);
+  margin: 32px 0 14px;
 }

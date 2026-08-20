@@ -3,8 +3,11 @@
 import { WCProduct, WCCategory } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import ProductGrid from "@/components/ProductGrid";
 import { CloseIcon } from "@/components/icons";
+import FaqAccordion from "@/components/FaqAccordion";
 
 const PRICE_RANGES = [
   { value: "0-2000",       label: "Under Rs 2,000"      },
@@ -15,42 +18,56 @@ const PRICE_RANGES = [
 
 type SortKey = "featured" | "price-asc" | "price-desc" | "name";
 
+/** Editorial copy per category slug — shown on the photographic category hero. */
+const CATEGORY_COPY: Record<string, string> = {
+  "for-her":
+    "Fragrance for women who don't dress to be noticed — they dress to be remembered. Florals softened with warm woods, musk, and a little audacity.",
+  "for-him":
+    "Structured, magnetic, unmistakably present. Built on woods, spice, and skin-warm musk — the kind that lingers in a room after he's left it.",
+  "unisex":
+    "No gendered aisles here — just fragrance chosen for how it makes you feel, not who it was marketed to.",
+  "unisex-perfumes":
+    "No gendered aisles here — just fragrance chosen for how it makes you feel, not who it was marketed to.",
+  "discovery-set":
+    "Undecided? Start small. A curated set of miniatures built for trying scents on skin before you commit to a full bottle.",
+};
 
-export default function ShopClient() {
+const FAQS = [
+  {
+    q: "How long does the fragrance last?",
+    a: `Every scent is built at 40% parfum concentration — well above the industry standard — so it sits close to the skin for hours, not minutes.`,
+  },
+  {
+    q: "What if I want to try before I commit?",
+    a: "Our Discovery Set lets you sample multiple scents in miniature before you commit to a full bottle.",
+  },
+];
+
+
+
+interface ShopClientProps {
+  initialProducts: WCProduct[];
+  initialCategories: WCCategory[];
+}
+
+export default function ShopClient({ initialProducts, initialCategories }: ShopClientProps) {
   const params = useSearchParams();
   const startCat = params.get("category") || "all";
+  const bestSellersOnly = params.get("featured") === "true";
 
-  const [products, setProducts]     = useState<WCProduct[]>([]);
-  const [categories, setCategories] = useState<WCCategory[]>([]);
-  const [loading, setLoading]       = useState(true);
+  const [products]     = useState<WCProduct[]>(initialProducts);
+  const [categories]   = useState<WCCategory[]>(initialCategories);
   const [cat, setCat]               = useState(startCat);
   const [prices, setPrices]         = useState<Set<string>>(new Set());
   const [sort, setSort]             = useState<SortKey>("featured");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Fetch products and categories from WooCommerce API
+  // Keep the active category in sync with the URL — otherwise navigating
+  // client-side between category links (header dropdown, footer, etc.)
+  // leaves the grid/hero/breadcrumb showing whatever category loaded first.
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true)
-        const [productsRes, categoriesRes] = await Promise.all([
-          fetch('/api/products?per_page=100'),
-          fetch('/api/categories'),
-        ])
-        const productsData   = await productsRes.json()
-        const categoriesData = await categoriesRes.json()
-
-        setProducts(productsData)
-        // Filter out uncategorized
-        setCategories(categoriesData.filter((c: WCCategory) => c.slug !== 'uncategorized' && c.count > 0))
-      } catch (err) {
-        console.error('Failed to fetch:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
+    setCat(startCat)
+  }, [startCat])
 
   function togglePrice(value: string) {
     const next = new Set(prices)
@@ -71,7 +88,8 @@ export default function ShopClient() {
     let filtered = products.filter((p) => {
       const price = parseFloat(p.price)
       const catMatch = cat === "all" || p.categories.some((c) => c.slug === cat)
-      return catMatch && priceMatch(price)
+      const bestSellerMatch = !bestSellersOnly || p.featured
+      return catMatch && priceMatch(price) && bestSellerMatch
     })
 
     if (sort === "price-asc")  filtered = [...filtered].sort((a, b) => parseFloat(a.price) - parseFloat(b.price))
@@ -80,7 +98,14 @@ export default function ShopClient() {
     if (sort === "featured")   filtered = [...filtered].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
 
     return filtered
-  }, [products, cat, prices, sort])
+  }, [products, cat, prices, sort, bestSellersOnly])
+
+  // A representative photo for the active category's hero — pulled from its own products, not a stock image.
+  const categoryImage = useMemo(() => {
+    if (cat === "all") return null
+    const match = products.find((p) => p.categories.some((c) => c.slug === cat) && p.images?.[0]?.src)
+    return match?.images?.[0]?.src ?? null
+  }, [products, cat])
 
   function clearAll() {
     setCat("all")
@@ -105,80 +130,142 @@ export default function ShopClient() {
 
   return (
     <main>
-      <section className="shop-hero">
-        <div className="wrap">
-          <p className="eyebrow">Shop{activeCategory ? " · " + activeCategory.name : ""}</p>
-          <h1 className="h-xl">{activeCategory ? activeCategory.name : "All Fragrance"}</h1>
-          <p className="lead" style={{ maxWidth: "48ch", marginTop: 14 }}>
-            {activeCategory
-              ? `Explore our ${activeCategory.name} collection`
-              : "The full house — eau de parfum, body and home, composed in the cool light of morning."}
-          </p>
-        </div>
-      </section>
-
-      <div className="wrap shop-layout">
-        <div
-          className={"scrim filter-scrim" + (filtersOpen ? " open" : "")}
-          onClick={() => setFiltersOpen(false)}
-        />
-        <aside className={"filters" + (filtersOpen ? " open" : "")}>
-          <div className="filter-head">
-            <h2 className="eyebrow">Filter</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-              <button className="ulink reveal" onClick={clearAll}>Clear all</button>
-              <button
-                type="button"
-                className="icon-btn filter-close"
-                aria-label="Close filters"
-                onClick={() => setFiltersOpen(false)}
-              >
-                <CloseIcon />
-              </button>
-            </div>
+      {bestSellersOnly ? (
+        <section className="shop-hero shop-hero--dark">
+          <div className="wrap">
+            <p className="eyebrow">No. 01 most loved</p>
+            <h1 className="h-xl">Best Sellers</h1>
+            <p className="lead" style={{ maxWidth: "56ch", marginTop: 14 }}>
+              The scents our customers reach for again and again. No paid placements, no guesswork —
+              this lineup is ranked purely by what actually sells, updated as new favorites emerge.
+            </p>
+            <ul className="attr-strip">
+              <li>40% parfum concentration</li>
+              <li>Cash on Delivery</li>
+              <li>Free delivery over Rs 5,000</li>
+            </ul>
           </div>
-
-          <div className="filter-group">
-            <h3>Category</h3>
-            <label className="opt">
-              <input type="radio" name="cat" value="all" checked={cat === "all"} onChange={() => setCat("all")} />
-              <span>All products</span>
-            </label>
-            {categories.map((c) => (
-              <label className="opt" key={c.id}>
-                <input type="radio" name="cat" value={c.slug} checked={cat === c.slug} onChange={() => setCat(c.slug)} />
-                <span>{c.name}</span>
-              </label>
-            ))}
+        </section>
+      ) : activeCategory ? (
+        <section className="shop-hero shop-hero--photo">
+          {categoryImage && (
+            <Image src={categoryImage} alt="" fill style={{ objectFit: "contain" }} unoptimized priority />
+          )}
+          <div className="shop-hero-scrim" />
+          <div className="wrap shop-hero-photo-content">
+            <p className="shop-crumb">
+              <Link href="/shop">Shop</Link>
+              <span>/</span>
+              <span>{activeCategory.name}</span>
+            </p>
+            <h1 className="h-xl">{activeCategory.name}</h1>
+            <p className="lead" style={{ maxWidth: "52ch", marginTop: 14 }}>
+              {CATEGORY_COPY[activeCategory.slug] || `Explore our ${activeCategory.name} collection.`}
+            </p>
           </div>
-
-          <div className="filter-group">
-            <h3>Price</h3>
-            {PRICE_RANGES.map((r) => (
-              <label className="opt" key={r.value}>
-                <input
-                  type="checkbox"
-                  checked={prices.has(r.value)}
-                  onChange={() => togglePrice(r.value)}
-                />
-                <span>{r.label}</span>
-              </label>
-            ))}
+        </section>
+      ) : (
+        <section className="shop-hero">
+          <div className="wrap">
+            <p className="eyebrow">Shop</p>
+            <h1 className="h-xl">All Fragrance</h1>
+            <p className="lead" style={{ maxWidth: "48ch", marginTop: 14 }}>
+              The full house — eau de parfum, body and home, composed in the cool light of morning.
+            </p>
           </div>
-        </aside>
+        </section>
+      )}
+
+      <div className={"wrap shop-layout" + (bestSellersOnly ? " shop-layout--curated" : "")}>
+        {!bestSellersOnly && (
+          <>
+            <div
+              className={"scrim filter-scrim" + (filtersOpen ? " open" : "")}
+              onClick={() => setFiltersOpen(false)}
+            />
+            <aside className={"filters" + (filtersOpen ? " open" : "")}>
+              <div className="filter-head">
+                <h2 className="eyebrow">Filter</h2>
+                <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+                  <button className="ulink reveal" onClick={clearAll}>Clear all</button>
+                  <button
+                    type="button"
+                    className="icon-btn filter-close"
+                    aria-label="Close filters"
+                    onClick={() => setFiltersOpen(false)}
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+              </div>
+
+              <div className="filter-group">
+                <h3>Category</h3>
+                <label className="opt">
+                  <input type="radio" name="cat" value="all" checked={cat === "all"} onChange={() => setCat("all")} />
+                  <span>All products</span>
+                </label>
+                {categories.map((c) => (
+                  <label className="opt" key={c.id}>
+                    <input type="radio" name="cat" value={c.slug} checked={cat === c.slug} onChange={() => setCat(c.slug)} />
+                    <span>{c.name}</span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="filter-group">
+                <h3>Price</h3>
+                {PRICE_RANGES.map((r) => (
+                  <label className="opt" key={r.value}>
+                    <input
+                      type="checkbox"
+                      checked={prices.has(r.value)}
+                      onChange={() => togglePrice(r.value)}
+                    />
+                    <span>{r.label}</span>
+                  </label>
+                ))}
+              </div>
+            </aside>
+          </>
+        )}
 
         <section className="results">
+          {bestSellersOnly && categories.length > 0 && (
+            <div className="quick-cats">
+              <button
+                className={"chip" + (cat === "all" ? " on" : "")}
+                onClick={() => setCat("all")}
+              >
+                All
+              </button>
+              {categories.map((c) => (
+                <button
+                  key={c.id}
+                  className={"chip" + (cat === c.slug ? " on" : "")}
+                  onClick={() => setCat(cat === c.slug ? "all" : c.slug)}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="results-bar">
-            <button className="btn-ghost btn filter-toggle" onClick={() => setFiltersOpen((v) => !v)}>
-              Filter
-            </button>
+            {!bestSellersOnly && (
+              <button className="btn-ghost btn filter-toggle" onClick={() => setFiltersOpen((v) => !v)}>
+                Filter
+              </button>
+            )}
             <span className="result-count">
-              {loading ? "Loading..." : `${list.length} ${list.length === 1 ? "product" : "products"}`}
+              {bestSellersOnly
+                ? `${list.length} ${list.length === 1 ? "bestseller" : "bestsellers"}`
+                : `${list.length} ${list.length === 1 ? "product" : "products"}`}
             </span>
             <label className="sort">
               <span>Sort</span>
               <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
-                <option value="featured">Featured</option>
+                <option value="featured">{bestSellersOnly ? "Top ranked" : "Featured"}</option>
                 <option value="price-asc">Price · Low to High</option>
                 <option value="price-desc">Price · High to Low</option>
                 <option value="name">Alphabetical</option>
@@ -186,12 +273,17 @@ export default function ShopClient() {
             </label>
           </div>
 
-          {loading ? (
-            <div style={{ padding: '60px 0', textAlign: 'center' }}>
-              <p className="muted">Loading products...</p>
+          {list.length > 0 ? (
+            <ProductGrid
+              products={list}
+              className={bestSellersOnly ? "grid-bestsellers" : undefined}
+              showRank={bestSellersOnly && sort === "featured"}
+            />
+          ) : bestSellersOnly ? (
+            <div className="no-results">
+              <p className="h-md" style={{ fontWeight: 300 }}>No bestsellers marked yet.</p>
+              <p className="muted" style={{ marginTop: 8 }}>Mark products as &quot;Featured&quot; in WooCommerce to have them appear here.</p>
             </div>
-          ) : list.length > 0 ? (
-            <ProductGrid products={list} />
           ) : (
             <div className="no-results">
               <p className="h-md" style={{ fontWeight: 300 }}>Nothing matches those filters.</p>
@@ -202,6 +294,20 @@ export default function ShopClient() {
           )}
         </section>
       </div>
+
+      {activeCategory && !bestSellersOnly && (
+        <section className="section-sm shop-faq">
+          <div className="wrap">
+            <div className="center" style={{ marginBottom: 36 }}>
+              <p className="eyebrow">Good to know</p>
+              <h2 className="h-lg" style={{ marginTop: 14 }}>{activeCategory.name} FAQs</h2>
+            </div>
+            <div className="faq-wrap">
+              <FaqAccordion items={FAQS} />
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

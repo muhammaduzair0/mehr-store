@@ -54,18 +54,18 @@ export default function AboutPage() {
             </div>
             <div className="pillar">
               <span className="serif-num">02</span>
-              <h3 className="h-sm">30% concentration</h3>
+              <h3 className="h-sm">40% concentration</h3>
               <p className="muted">A higher oil load than most eaux de parfum — for sillage and longevity you can actually feel.</p>
             </div>
             <div className="pillar">
               <span className="serif-num">03</span>
               <h3 className="h-sm">Responsibly sourced</h3>
-              <p className="muted">Cruelty-free, with traceable naturals and clean synthetics. No animal testing, ever.</p>
+              <p className="muted">Traceable naturals and clean synthetics, chosen deliberately — not for the lowest price.</p>
             </div>
             <div className="pillar">
               <span className="serif-num">04</span>
-              <h3 className="h-sm">Made to refill</h3>
-              <p className="muted">Keep the weighted glass bottle and renew the scent — less packaging, the same ritual.</p>
+              <h3 className="h-sm">Shipped direct</h3>
+              <p className="muted">100% authentic, sent straight from Mehr — never through resellers or marketplaces.</p>
             </div>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function AboutPage() {
               </li>
               <li>
                 <span className="serif-num">100%</span>
-                <span>recyclable, refillable packaging</span>
+                <span>recyclable packaging</span>
               </li>
             </ul>
           </div>
@@ -128,8 +128,8 @@ export default function AboutPage() {
             <Link className="btn btn-primary btn-lg" href="/shop">
               Shop the collection
             </Link>
-            <Link className="btn btn-outline btn-lg" href="/product?id=discovery">
-              Try the Discovery Set
+            <Link className="btn btn-outline btn-lg" href="/shop?featured=true">
+              Shop Best Sellers
             </Link>
           </div>
         </div>

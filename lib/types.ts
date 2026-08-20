@@ -3,12 +3,18 @@ export interface WCProduct {
   id: number;
   name: string;
   slug: string;
+  sku: string;
   price: string;
   regular_price: string;
   sale_price: string;
   featured: boolean;
   on_sale: boolean;
   stock_status: string;
+  manage_stock: boolean;
+  stock_quantity: number | null;
+  low_stock_amount: number | null;
+  backorders_allowed: boolean;
+  purchase_note: string;
   short_description: string;
   description: string;
   images: { src: string; alt: string }[];
@@ -22,6 +28,24 @@ export interface WCProduct {
   average_rating: string;
   rating_count: number;
   related_ids: number[];
+  upsell_ids: number[];
+  cross_sell_ids: number[];
+  variations: number[];
+}
+
+export interface WCVariation {
+  id: number;
+  sku: string;
+  price: string;
+  regular_price: string;
+  sale_price: string;
+  on_sale: boolean;
+  stock_status: string;
+  manage_stock: boolean;
+  stock_quantity: number | null;
+  backorders_allowed: boolean;
+  image: { src: string; alt: string } | null;
+  attributes: { name: string; option: string }[];
 }
 
 export interface WCCategory {
@@ -35,6 +59,8 @@ export interface WCCategory {
 
 export interface WCOrder {
   id: number;
+  number: string;
+  order_key: string;
   status: string;
   total: string;
   date_created: string;

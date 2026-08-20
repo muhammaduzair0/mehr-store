@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import { WHATSAPP_URL, INSTAGRAM_URL, FACEBOOK_URL, TIKTOK_URL } from "@/lib/contact";
 
 function TikTokIcon() {
   return (
@@ -43,19 +42,10 @@ export default function Footer() {
             <div className="foot-mark">Mehr</div>
             <p className="foot-tag">The part of you they remember.</p>
             <div className="foot-social">
-              <a href="https://tiktok.com/@mehr" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="social-icon"><TikTokIcon /></a>
-              <a href="https://facebook.com/mehr" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-icon"><FacebookIcon /></a>
-              <a href="https://instagram.com/mehr" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-icon"><InstagramIcon /></a>
-              <a href="https://wa.me/923000000000" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="social-icon whatsapp"><WhatsAppIcon /></a>
-            </div>
-            <div className="news">
-              <p style={{ fontSize: 11, letterSpacing: ".20em", textTransform: "uppercase" as const, color: "oklch(0.62 0.016 250)", marginBottom: 10, fontWeight: 600 }}>
-                Join the list — 10% off your first order
-              </p>
-              <form className="news-field" onSubmit={(e) => e.preventDefault()}>
-                <input type="email" placeholder="Email address" aria-label="Email" />
-                <button type="submit">Subscribe</button>
-              </form>
+              <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="social-icon"><TikTokIcon /></a>
+              <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-icon"><FacebookIcon /></a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-icon"><InstagramIcon /></a>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="social-icon whatsapp"><WhatsAppIcon /></a>
             </div>
           </div>
 
@@ -64,8 +54,7 @@ export default function Footer() {
             <ul>
               <li><Link href="/shop?category=for-her">For Her</Link></li>
               <li><Link href="/shop?category=for-him">For Him</Link></li>
-              <li><Link href="/shop?category=unisex-perfumes">Unisex</Link></li>
-              <li><Link href="/shop?category=discovery-set">Discovery Set</Link></li>
+              <li><Link href="/shop?category=unisex">Unisex</Link></li>
               <li><Link href="/shop?featured=true">Best Sellers</Link></li>
             </ul>
           </div>
@@ -76,7 +65,7 @@ export default function Footer() {
               <li><Link href="/about">Our Story</Link></li>
               <li><Link href="/collections">Collections</Link></li>
               <li><Link href="/blog">Blog</Link></li>
-              <li><a href="#">Sustainability</a></li>
+              <li><Link href="/sustainability">Sustainability</Link></li>
             </ul>
           </div>
 
@@ -84,9 +73,9 @@ export default function Footer() {
             <h4>Care</h4>
             <ul>
               <li><Link href="/contact">Contact Us</Link></li>
-              <li><a href="#">Shipping &amp; Returns</a></li>
-              <li><a href="#">Find Your Scent</a></li>
-              <li><a href="#">FAQ</a></li>
+              <li><Link href="/shipping-returns">Shipping &amp; Returns</Link></li>
+              <li><Link href="/find-your-scent">Find Your Scent</Link></li>
+              <li><Link href="/faq">FAQ</Link></li>
             </ul>
           </div>
         </div>
@@ -94,8 +83,8 @@ export default function Footer() {
         <div className="foot-bottom">
           <span>© {year} Mehr Fragrances. All rights reserved.</span>
           <div className="legal-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
           </div>
         </div>
       </div>

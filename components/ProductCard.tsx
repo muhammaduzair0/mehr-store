@@ -5,30 +5,33 @@ import Link from "next/link";
 import { WCProduct } from "@/lib/types";
 import { Cart, useWishlist, Wish } from "@/lib/store";
 import { HeartIcon } from "./icons";
-import { money } from "@/lib/format";
+import { discountPercent, money } from "@/lib/format";
 
-export default function ProductCard({ p }: { p: WCProduct }) {
+export default function ProductCard({ p, rank }: { p: WCProduct; rank?: number }) {
   const wishlist = useWishlist();
   const saved = wishlist.includes(String(p.id));
 
-  const image = p.images?.[0]?.src || "/whisper-campaign.png";
-  const badge = p.on_sale ? "Sale" : p.featured ? "Featured" : null;
+  const image  = p.images?.[0]?.src || "/whisper-campaign.png";
+  const image2 = p.images?.[1]?.src;
+  const soldOut = p.stock_status !== "instock";
+  const pct = p.on_sale ? discountPercent(p.regular_price, p.sale_price) : null;
+  const badge = soldOut ? "Sold Out" : pct ? `-${pct}%` : p.featured ? "Featured" : null;
   const family = p.attributes?.find((a) => a.name === "Scent Family")?.options?.[0] || "";
   const notes  = p.attributes?.find((a) => a.name === "Notes")?.options?.slice(0, 3).join(" · ") || "";
 
   return (
-    <article className="card">
-      <Link className="card-media" href={`/product?id=${p.id}`} aria-label={p.name}>
-        {badge && <span className="badge">{badge}</span>}
+    <article className={"card" + (soldOut ? " card-sold-out" : "")}>
+      <div className="card-media">
+        <Link className="card-media-link" href={`/product/${p.slug}`} aria-label={p.name} />
+        <div className="card-badges">
+          {rank && !soldOut && <span className="card-rank">No. {String(rank).padStart(2, "0")}</span>}
+          {badge && <span className={"badge" + (soldOut ? " badge-sold-out" : "")}>{badge}</span>}
+        </div>
         <button
           type="button"
           className={"wish-btn" + (saved ? " on" : "")}
           aria-label={`Save ${p.name}`}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            Wish.toggle(String(p.id));
-          }}
+          onClick={() => Wish.toggle(String(p.id))}
         >
           <HeartIcon />
         </button>
@@ -37,21 +40,26 @@ export default function ProductCard({ p }: { p: WCProduct }) {
           alt={p.images?.[0]?.alt || p.name}
           fill
           className="slot-fill"
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: "contain" }}
           unoptimized
         />
-        <button
-          type="button"
-          className="quick-add"
-       onClick={(e) => {
-  e.preventDefault();
-  Cart.addWC(p);
-}}
-        >
-          Add — {money(p.price)}
-        </button>
-      </Link>
-      <Link href={`/product?id=${p.id}`}>
+        {image2 && (
+          <Image
+            src={image2}
+            alt=""
+            fill
+            className="slot-fill card-media-alt"
+            style={{ objectFit: "contain" }}
+            unoptimized
+          />
+        )}
+        {!soldOut && (
+          <button type="button" className="quick-add" onClick={() => Cart.addWC(p)}>
+            Add — {money(p.price)}
+          </button>
+        )}
+      </div>
+      <Link href={`/product/${p.slug}`}>
         {family && <div className="card-cat">{family}</div>}
         <div className="card-name">{p.name}</div>
         {notes && <div className="card-notes">{notes}</div>}
@@ -62,6 +70,7 @@ export default function ProductCard({ p }: { p: WCProduct }) {
                 {money(p.regular_price)}
               </span>
               {money(p.sale_price)}
+              {pct && <span className="card-discount">−{pct}%</span>}
             </>
           ) : (
             money(p.price)

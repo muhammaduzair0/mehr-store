@@ -9,9 +9,9 @@ import { CloseIcon } from "./icons";
 const MOBILE_NAV = [
   { label: "For Her",       href: "/shop?category=for-her" },
   { label: "For Him",       href: "/shop?category=for-him" },
-  { label: "Unisex",        href: "/shop?category=unisex-perfumes" },
+  { label: "Unisex",        href: "/shop?category=unisex" },
   { label: "Best Sellers",  href: "/shop?featured=true" },
-  { label: "Discovery Set", href: "/shop?category=discovery-set" },
+  { label: "Search",        href: "/search" },
   { label: "Blog",          href: "/blog" },
   { label: "Contact",       href: "/contact" },
 ];

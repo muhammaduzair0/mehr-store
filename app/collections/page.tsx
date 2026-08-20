@@ -1,34 +1,40 @@
 import Image from "next/image";
 import Link from "next/link";
 import { money } from "@/lib/format";
+import { wc } from "@/lib/woocommerce";
 
 export const metadata = { title: "Collections — Mehr" };
-const ORDER = ["women", "men", "unisex-perfumes"];
+
+// Fetched from WooCommerce at render time, which Next would otherwise bake
+// into the static build once and never touch again — revalidate periodically
+// so new products/price changes show up without a full redeploy.
+export const revalidate = 300;
+
+const ORDER = ["for-her", "for-him", "unisex"];
 
 const STATIC_CATS: Record<string, { label: string; tagline: string; blurb: string }> = {
-  women: {
-    label: "Women",
+  "for-her": {
+    label: "For Her",
     tagline: "Eau de Parfum",
-    blurb: "Florals, musks and orientals composed for presence.",
+    blurb:
+      "Fragrance for women who don't dress to be noticed — they dress to be remembered. Florals softened with warm woods, musk, and a little audacity.",
   },
-  men: {
-    label: "Men",
+  "for-him": {
+    label: "For Him",
     tagline: "Eau de Parfum",
-    blurb: "Woods, leathers and aromatics with quiet confidence.",
+    blurb:
+      "Structured, magnetic, unmistakably present. Built on woods, spice, and skin-warm musk — the kind that lingers in a room after he's left it.",
   },
-  "unisex-perfumes": {
-    label: "Unisex Perfumes",
+  unisex: {
+    label: "Unisex",
     tagline: "Eau de Parfum",
-    blurb: "Scents that belong to everyone — bold, balanced, boundary-free.",
+    blurb: "No gendered aisles here — just fragrance chosen for how it makes you feel, not who it was marketed to.",
   },
 };
 
 async function getProducts() {
   try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products?per_page=100`, {
-      cache: 'no-store',
-    });
-    return res.ok ? res.json() : [];
+    return await wc.getProducts({ per_page: "100" });
   } catch {
     return [];
   }
@@ -43,11 +49,10 @@ export default async function CollectionsPage() {
         <div className="wrap center">
           <p className="eyebrow">The Collections</p>
           <h1 className="display" style={{ margin: "18px auto 0", maxWidth: "14ch" }}>
-            Five ways to be remembered
+            Three ways to be remembered
           </h1>
           <p className="lead" style={{ maxWidth: "52ch", margin: "26px auto 0" }}>
-            From the parfums that announce you to the candle that fills a room — each Mehr collection is composed
-            around a single idea: scent that lingers.
+            Each Mehr collection is composed around a single idea: scent that lingers.
           </p>
         </div>
       </section>
@@ -62,12 +67,13 @@ export default async function CollectionsPage() {
           const from   = prices.length ? Math.min(...prices) : 0;
           const num    = String(i + 1).padStart(2, "0");
           const reversed = i % 2 === 1;
+          const image = items.find((p: any) => p.images?.[0]?.src)?.images?.[0]?.src || "/whisper-campaign.png";
 
           return (
             <section className={"coll-row" + (reversed ? " rev" : "")} key={key}>
               <div className="wrap coll-grid">
                 <Link className="coll-media" href={`/shop?category=${key}`}>
-                  <Image src="/whisper-campaign.png" alt={`${c.label} collection`} fill style={{ objectFit: "cover" }} />
+                  <Image src={image} alt={`${c.label} collection`} fill style={{ objectFit: "contain" }} unoptimized />
                   <span className="coll-num serif-num">{num}</span>
                 </Link>
                 <div className="coll-copy">
@@ -79,7 +85,7 @@ export default async function CollectionsPage() {
                   </p>
                   <div className="coll-tags">
                     {items.slice(0, 4).map((p: any) => (
-                      <Link key={p.id} href={`/product?id=${p.id}`}>
+                      <Link key={p.id} href={`/product/${p.slug}`}>
                         {p.name}
                       </Link>
                     ))}

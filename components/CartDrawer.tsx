@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
-import { CATEGORIES, FREE_SHIP } from "@/lib/data";
+import { FREE_SHIP } from "@/lib/data";
 import { money } from "@/lib/format";
 import { Cart, useCart } from "@/lib/store";
 import { CartDrawerUI, useCartDrawerOpen } from "@/lib/ui";
@@ -54,9 +55,13 @@ export default function CartDrawer() {
             items.map((i) => (
               <div className="line-item" key={i.key}>
                 <div className="li-media">
-                  <div className="ph">
-                    <span className="ph-tag">{CATEGORIES[i.cat]?.label || ""}</span>
-                  </div>
+                  {i.image ? (
+                    <Image src={i.image} alt={i.name} fill style={{ objectFit: "contain" }} unoptimized />
+                  ) : (
+                    <div className="ph">
+                      <span className="ph-tag">{i.cat}</span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="li-name">{i.name}</div>
@@ -92,8 +97,8 @@ export default function CartDrawer() {
             </div>
             <p className="ship-note">
               {toFree > 0
-                ? `You're ${money(toFree)} away from free shipping & samples.`
-                : "You've unlocked free shipping & two samples."}
+                ? `You're ${money(toFree)} away from free delivery.`
+                : "You've unlocked free delivery."}
             </p>
             <Link className="btn btn-primary btn-block" href="/cart" onClick={CartDrawerUI.close}>
               Checkout

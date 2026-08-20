@@ -1,17 +1,19 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { Product, findProduct } from "./data";
 
 export type CartItem = {
   key: string;
   id: string;
+  /** WooCommerce variation id, when this line is a specific size of a variable product. */
+  variationId: number | null;
   name: string;
   cat: string;
   type: string;
   ml: number | null;
   price: number;
   qty: number;
+  image: string | null;
 };
 
 export type Order = {
@@ -110,44 +112,31 @@ export const Cart = {
   count: () => cartStore.get().reduce((n, i) => n + i.qty, 0),
   subtotal: () => cartStore.get().reduce((s, i) => s + i.price * i.qty, 0),
 
-  addWC(product: { id: number; name: string; price: string; categories?: { slug: string }[]; images?: { src: string }[] }, qty = 1) {
+  addWC(
+    product: { id: number; name: string; price: string; categories?: { name: string; slug: string }[]; images?: { src: string }[] },
+    qty = 1,
+    variation?: { id: number; price: string; image?: string | null; sizeLabel?: string | null }
+  ) {
     const cart = cartStore.get().slice();
-    const key  = String(product.id);
+    const key  = variation ? `${product.id}:${variation.id}` : String(product.id);
     const existing = cart.find((i) => i.key === key);
     if (existing) {
       existing.qty += qty;
     } else {
       cart.push({
         key,
-        id:    String(product.id),
-        name:  product.name,
-        cat:   product.categories?.[0]?.slug || "",
-        type:  "Eau de Parfum",
-        ml:    null,
-        price: parseFloat(product.price) || 0,
+        id:          String(product.id),
+        variationId: variation?.id ?? null,
+        name:        product.name,
+        cat:         product.categories?.[0]?.name || "",
+        type:        "Eau de Parfum",
+        ml:          variation?.sizeLabel ? parseFloat(variation.sizeLabel) || null : null,
+        price:       parseFloat(variation?.price ?? product.price) || 0,
         qty,
+        image:       variation?.image || product.images?.[0]?.src || null,
       });
     }
     cartStore.set(cart);
-  },
-
-  add(id: string, ml?: number | null, qty = 1) {
-    const p = findProduct(id);
-    if (p) {
-      const size = p.sizes.find((s) => s.ml === ml) || p.sizes[0];
-      const cart = cartStore.get().slice();
-      const key  = id + ":" + (size.ml ?? "");
-      const existing = cart.find((i) => i.key === key);
-      if (existing) existing.qty += qty;
-      else cart.push({ key, id, name: p.name, cat: p.cat, type: p.type, ml: size.ml, price: size.price, qty });
-      cartStore.set(cart);
-    } else {
-      const cart = cartStore.get().slice();
-      const existing = cart.find((i) => i.key === id);
-      if (existing) existing.qty += qty;
-      else cart.push({ key: id, id, name: id, cat: "", type: "", ml: null, price: 0, qty });
-      cartStore.set(cart);
-    }
   },
 
   setQty(key: string, qty: number) {
@@ -231,6 +220,3 @@ export function useAddress(): Address {
   return useSyncExternalStore(addrStore.subscribe, addrStore.getSnapshot, addrStore.getServerSnapshot);
 }
 
-export function findWishProducts(ids: string[]): Product[] {
-  return ids.map((id) => findProduct(id)).filter((p): p is Product => Boolean(p));
-}

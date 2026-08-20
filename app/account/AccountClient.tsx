@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/ProductGrid";
 import { money } from "@/lib/format";
@@ -10,7 +11,6 @@ import {
   AddressBook,
   Auth,
   Order,
-  Orders,
   useAddress,
   useOrders,
   useUser,
@@ -19,27 +19,42 @@ import {
 
 type AuthMode = "signin" | "register";
 type Tab = "overview" | "orders" | "wishlist" | "addresses" | "details";
+const VALID_TABS: Tab[] = ["overview", "orders", "wishlist", "addresses", "details"];
 
 const fmtDate = (ts: number) =>
   new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
-function seedOnce() {
-  if (typeof window === "undefined") return;
-  if (localStorage.getItem("mehr_seeded")) return;
-  localStorage.setItem("mehr_seeded", "1");
-  if (!Orders.all().length) {
-    Orders.add({
-      no: "#MR-204815",
-      date: Date.now() - 1000 * 60 * 60 * 24 * 26,
-      email: Auth.user()?.email || "",
-      total: 203,
-      status: "Delivered",
-      items: [
-        { key: "noor:50", id: "noor", name: "Noor", cat: "women", type: "Eau de Parfum", ml: 50, price: 145, qty: 1 },
-        { key: "oud-noir:220", id: "oud-noir", name: "Oud Noir Candle", cat: "candles", type: "Scented Candle", ml: 220, price: 58, qty: 1 },
-      ],
-    });
-  }
+const STATUS_LABEL: Record<string, string> = {
+  completed:  "Delivered",
+  processing: "Processing",
+  "on-hold":  "On hold",
+  pending:    "Pending payment",
+  cancelled:  "Cancelled",
+  refunded:   "Refunded",
+  failed:     "Failed",
+};
+
+/** Map a WooCommerce order (from /api/orders) into the local Order shape the UI renders. */
+function mapWcOrder(o: any): Order {
+  return {
+    no: "#" + (o.number ?? o.id),
+    date: new Date(o.date_created).getTime(),
+    email: o.billing?.email || "",
+    total: parseFloat(o.total) || 0,
+    status: STATUS_LABEL[o.status] || o.status,
+    items: (o.line_items || []).map((li: any) => ({
+      key: String(li.id),
+      id: String(li.product_id),
+      variationId: li.variation_id || null,
+      name: li.name,
+      cat: "",
+      type: "",
+      ml: null,
+      price: li.quantity ? parseFloat(li.total) / li.quantity : parseFloat(li.total) || 0,
+      qty: li.quantity || 1,
+      image: li.image?.src || null,
+    })),
+  };
 }
 
 function OrderCard({ o }: { o: Order }) {
@@ -59,9 +74,13 @@ function OrderCard({ o }: { o: Order }) {
         <div className="oc-thumbs">
           {items.slice(0, 4).map((i, idx) => (
             <div className="oc-thumb" key={idx}>
-              <div className="ph">
-                <span className="ph-tag">{i.cat || ""}</span>
-              </div>
+              {i.image ? (
+                <Image src={i.image} alt={i.name} fill style={{ objectFit: "contain" }} unoptimized />
+              ) : (
+                <div className="ph">
+                  <span className="ph-tag">{i.cat || ""}</span>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -77,19 +96,75 @@ function OrderCard({ o }: { o: Order }) {
 export default function AccountClient() {
   const params = useSearchParams();
   const user = useUser();
-  const orders = useOrders();
+  const localOrders = useOrders();
   const wishlist = useWishlist();
   const address = useAddress();
 
   const [authMode, setAuthMode] = useState<AuthMode>("signin");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>((params.get("tab") as Tab) || "overview");
   const [addrSaved, setAddrSaved] = useState(false);
   const [detailsSaved, setDetailsSaved] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
   const [wishProducts, setWishProducts] = useState<any[]>([]);
+  const [wcOrders, setWcOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
+  // The session cookie (set by /api/auth/login|register) is the real source
+  // of truth — re-check it on mount so a hard refresh (or a session revoked/
+  // expired server-side) doesn't leave stale local state saying "signed in".
   useEffect(() => {
-    if (user) seedOnce();
-  }, [user]);
+    let cancelled = false;
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.email) Auth.setUser({ name: data.name, email: data.email });
+        else if (Auth.user()) Auth.signOut();
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  // The initial `tab` state only reads the URL once, at mount — a header/
+  // footer link to e.g. /account?tab=wishlist while already on this page
+  // wouldn't otherwise switch tabs. Re-sync whenever the param changes.
+  useEffect(() => {
+    const requested = params.get("tab") as Tab | null;
+    if (requested && VALID_TABS.includes(requested)) setTab(requested);
+  }, [params]);
+
+  // Pull real order history from WooCommerce by billing email — the local
+  // list is device-only and just a fallback for the moment right after checkout.
+  useEffect(() => {
+    if (!user?.email) {
+      setWcOrders([]);
+      return;
+    }
+    let cancelled = false;
+    async function run() {
+      setOrdersLoading(true);
+      try {
+        const res = await fetch(`/api/orders`);
+        const data = await res.json();
+        if (!cancelled && Array.isArray(data)) setWcOrders(data.map(mapWcOrder));
+      } catch {
+        if (!cancelled) setWcOrders([]);
+      } finally {
+        if (!cancelled) setOrdersLoading(false);
+      }
+    }
+    run();
+    return () => { cancelled = true; };
+  }, [user?.email]);
+
+  const orders = useMemo(() => {
+    const byNo = new Map<string, Order>();
+    for (const o of localOrders) byNo.set(o.no, o);
+    for (const o of wcOrders) byNo.set(o.no, o); // WooCommerce is authoritative where it overlaps
+    return [...byNo.values()].sort((a, b) => b.date - a.date);
+  }, [localOrders, wcOrders]);
 
   useEffect(() => {
     if (!wishlist.length) {
@@ -99,31 +174,83 @@ export default function AccountClient() {
     async function fetchWishProducts() {
       const results = await Promise.all(
         wishlist.map((id) =>
-          fetch(`/api/products/${id}`).then((r) => r.json()).catch(() => null)
+          fetch(`/api/products/${id}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .catch(() => null)
         )
       );
-      setWishProducts(results.filter(Boolean));
+      setWishProducts(results.filter((p) => p && p.id));
     }
     fetchWishProducts();
   }, [wishlist]);
 
-  function submitAuth(e: React.FormEvent<HTMLFormElement>) {
+  async function submitAuth(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const name = ((form.elements.namedItem("auth-name") as HTMLInputElement)?.value || "").trim() || "Friend";
+    const name = ((form.elements.namedItem("auth-name") as HTMLInputElement)?.value || "").trim();
     const email = (form.elements.namedItem("auth-email") as HTMLInputElement)?.value || "";
-    Auth.setUser({ name, email });
-    setTab("overview");
+    const password = (form.elements.namedItem("auth-pass") as HTMLInputElement)?.value || "";
+
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      if (authMode === "register") {
+        const regRes = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const regData = await regRes.json().catch(() => null);
+        if (!regRes.ok) throw new Error(regData?.error || "Could not create your account.");
+      }
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || "Invalid email or password.");
+
+      Auth.setUser({ name: data.name || name || "Friend", email: data.email });
+      setTab("overview");
+    } catch (err: any) {
+      setAuthError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setAuthLoading(false);
+    }
   }
 
-  function submitDetails(e: React.FormEvent<HTMLFormElement>) {
+  async function signOut() {
+    fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    Auth.signOut();
+  }
+
+  async function submitDetails(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const name = (form.elements.namedItem("d-name") as HTMLInputElement)?.value || "";
-    const email = (form.elements.namedItem("d-email") as HTMLInputElement)?.value || "";
-    Auth.setUser({ name, email });
-    setDetailsSaved(true);
-    setTimeout(() => setDetailsSaved(false), 1800);
+    const passwordInput = (form.elements.namedItem("d-pass") as HTMLInputElement)?.value || "";
+    // The field is pre-filled with a placeholder "********" purely for visual
+    // consistency with a real password field — only send a new password if
+    // the user actually changed it.
+    const password = passwordInput && passwordInput !== "********" ? passwordInput : "";
+
+    setDetailsError(null);
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, password }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || "Could not save your changes.");
+      Auth.setUser({ name: data.name, email: data.email });
+      setDetailsSaved(true);
+      setTimeout(() => setDetailsSaved(false), 1800);
+    } catch (err: any) {
+      setDetailsError(err.message || "Could not save your changes.");
+    }
   }
 
   function submitAddress(e: React.FormEvent<HTMLFormElement>) {
@@ -187,14 +314,25 @@ export default function AccountClient() {
                 <label htmlFor="auth-email">Email address</label>
               </div>
               <div className="field">
-                <input id="auth-pass" type="password" required placeholder=" " />
+                <input
+                  id="auth-pass"
+                  name="auth-pass"
+                  type="password"
+                  required
+                  minLength={authMode === "register" ? 8 : undefined}
+                  placeholder=" "
+                />
                 <label htmlFor="auth-pass">Password</label>
               </div>
-              <button className="btn btn-primary btn-block btn-lg" type="submit">
-                {authMode === "register" ? "Create account" : "Sign in"}
+              {authError && (
+                <p className="checkout-error" role="alert">{authError}</p>
+              )}
+              <button className="btn btn-primary btn-block btn-lg" type="submit" disabled={authLoading}>
+                {authLoading
+                  ? authMode === "register" ? "Creating account…" : "Signing in…"
+                  : authMode === "register" ? "Create account" : "Sign in"}
               </button>
             </form>
-            <p className="auth-note">Prototype — any email and password will sign you in. Nothing is sent or stored remotely.</p>
           </div>
         </section>
       </main>
@@ -211,7 +349,7 @@ export default function AccountClient() {
               Hello, {(user.name || "Friend").split(" ")[0]}
             </h1>
           </div>
-          <button className="ulink reveal" onClick={() => Auth.signOut()}>
+          <button className="ulink reveal" onClick={signOut}>
             Sign out
           </button>
         </div>
@@ -251,8 +389,8 @@ export default function AccountClient() {
                     <span>Saved items</span>
                   </button>
                   <Link className="ov-stat" href="/shop">
-                    <span className="serif-num">∞</span>
-                    <span>Refills available</span>
+                    <span className="serif-num">10%</span>
+                    <span>Off with WELCOME10</span>
                   </Link>
                 </div>
                 <h2 className="acct-h">Most recent order</h2>
@@ -272,7 +410,9 @@ export default function AccountClient() {
             {tab === "orders" && (
               <section>
                 <h2 className="acct-h">Order history</h2>
-                {orders.length ? (
+                {ordersLoading && !orders.length ? (
+                  <p className="muted">Loading your orders…</p>
+                ) : orders.length ? (
                   orders.map((o) => <OrderCard o={o} key={o.no} />)
                 ) : (
                   <div className="acct-empty">
@@ -331,7 +471,7 @@ export default function AccountClient() {
                       <label htmlFor="a-zip">Postcode</label>
                     </div>
                     <div className="field">
-                      <input id="a-country" name="a-country" placeholder=" " defaultValue={address.country || "United Kingdom"} />
+                      <input id="a-country" name="a-country" placeholder=" " defaultValue={address.country || "Pakistan"} />
                       <label htmlFor="a-country">Country</label>
                     </div>
                   </div>
@@ -350,13 +490,17 @@ export default function AccountClient() {
                     <label htmlFor="d-name">Full name</label>
                   </div>
                   <div className="field">
-                    <input id="d-email" name="d-email" type="email" placeholder=" " defaultValue={user.email || ""} />
+                    <input id="d-email" type="email" placeholder=" " defaultValue={user.email || ""} disabled />
                     <label htmlFor="d-email">Email address</label>
                   </div>
+                  <p className="muted" style={{ fontSize: 12.5, margin: "-10px 0 4px" }}>
+                    Your email is your sign-in — contact us to change it.
+                  </p>
                   <div className="field">
-                    <input id="d-pass" type="password" placeholder=" " defaultValue="********" />
+                    <input id="d-pass" name="d-pass" type="password" placeholder=" " defaultValue="********" />
                     <label htmlFor="d-pass">Password</label>
                   </div>
+                  {detailsError && <p className="checkout-error" role="alert">{detailsError}</p>}
                   <button className="btn btn-primary" type="submit">Save changes</button>
                   {detailsSaved && <span className="save-ok">Saved ✓</span>}
                 </form>

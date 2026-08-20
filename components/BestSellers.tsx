@@ -1,11 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { discountPercent, money } from "@/lib/format";
+import { wc } from "@/lib/woocommerce";
 
 /** Curated bestseller list, in display order. "Majesty" is the hero (rank 1). */
-const BESTSELLER_NAMES = ["Majesty", "Kafka", "Vasl", "Humnafas", "Arwaah"];
+const BESTSELLER_NAMES = ["Majesty", "Kafka", "Vasl", "Humnafas"];
 
 interface WCProductLite {
   id: number;
@@ -14,6 +13,7 @@ interface WCProductLite {
   price: string;
   sale_price?: string;
   regular_price?: string;
+  on_sale?: boolean;
   images?: { src: string }[];
   categories?: { name: string }[];
 }
@@ -22,8 +22,10 @@ interface BestSellerItem {
   rank: number;
   name: string;
   slug: string;
+  id: number | null;
   image: string;
   price: string | null;
+  discountPct: number | null;
   category: string;
 }
 
@@ -36,50 +38,45 @@ function resolvePrice(p: WCProductLite): string | null {
   return null;
 }
 
-export default function BestSellers() {
-  const [items, setItems] = useState<BestSellerItem[] | null>(null);
+async function getBestSellers(): Promise<BestSellerItem[]> {
+  try {
+    const all: WCProductLite[] = await wc.getProducts({ per_page: "100" });
 
-  useEffect(() => {
-    async function fetchBestSellers() {
-      try {
-        const res = await fetch(`/api/products?per_page=100`, { cache: "no-store" });
-        const all: WCProductLite[] = res.ok ? await res.json() : [];
+    const byName = new Map(
+      (Array.isArray(all) ? all : []).map((p) => [p.name.trim().toLowerCase(), p])
+    );
 
-        const byName = new Map(
-          all.map((p) => [p.name.trim().toLowerCase(), p])
-        );
+    return BESTSELLER_NAMES.map((name, i) => {
+      const p = byName.get(name.toLowerCase());
+      return {
+        rank: i + 1,
+        name,
+        slug: p?.slug ?? name.toLowerCase(),
+        id: p?.id ?? null,
+        image: p?.images?.[0]?.src ?? "/whisper-campaign.png",
+        price: p ? resolvePrice(p) : null,
+        discountPct: p?.on_sale && p.regular_price && p.sale_price ? discountPercent(p.regular_price, p.sale_price) : null,
+        category: p?.categories?.[0]?.name ?? "Eau de Parfum",
+      };
+    });
+  } catch {
+    return BESTSELLER_NAMES.map((name, i) => ({
+      rank: i + 1,
+      name,
+      slug: name.toLowerCase(),
+      id: null,
+      image: "/whisper-campaign.png",
+      price: null,
+      discountPct: null,
+      category: "Eau de Parfum",
+    }));
+  }
+}
 
-        const resolved: BestSellerItem[] = BESTSELLER_NAMES.map((name, i) => {
-          const p = byName.get(name.toLowerCase());
-          return {
-            rank: i + 1,
-            name,
-            slug: p?.slug ?? name.toLowerCase(),
-            image: p?.images?.[0]?.src ?? "/whisper-campaign.png",
-            price: p ? resolvePrice(p) : null,
-            category: p?.categories?.[0]?.name ?? "Eau de Parfum",
-          };
-        });
-
-        setItems(resolved);
-      } catch {
-        setItems(
-          BESTSELLER_NAMES.map((name, i) => ({
-            rank: i + 1,
-            name,
-            slug: name.toLowerCase(),
-            image: "/whisper-campaign.png",
-            price: null,
-            category: "Eau de Parfum",
-          }))
-        );
-      }
-    }
-    fetchBestSellers();
-  }, []);
-
-  const hero = items?.[0];
-  const rest = items?.slice(1) ?? [];
+export default async function BestSellers() {
+  const items = await getBestSellers();
+  const hero = items[0];
+  const rest = items.slice(1);
 
   return (
     <section className="section-sm bestsellers">
@@ -92,69 +89,60 @@ export default function BestSellers() {
           <Link className="ulink reveal" href="/shop">Shop all</Link>
         </div>
 
-        {!items ? (
-          <div className="bs-grid reveal-up">
-            <div className="bs-hero bs-skeleton" />
-            <div className="bs-side">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bs-tile bs-skeleton" />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="bs-grid reveal-up">
-            {hero && (
-              <Link href={`/product/${hero.slug}`} className="bs-hero">
-                <span className="bs-rank">No. 01</span>
-                <div className="bs-hero-media">
+        <div className="bs-grid reveal-up">
+          {hero && (
+            <Link href={hero.id ? `/product/${hero.slug}` : "/shop"} className="bs-hero">
+              <span className="bs-rank">No. 01</span>
+              <div className="bs-hero-media">
+                <Image
+                  src={hero.image}
+                  alt={hero.name}
+                  fill
+                  unoptimized
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
+              <div className="bs-hero-info">
+                <p className="bs-cat">{hero.category}</p>
+                <h3 className="bs-name">{hero.name}</h3>
+                <div className="bs-hero-footer">
+                  <span className="bs-price">
+                    {hero.price ? money(hero.price) : "Price on request"}
+                    {hero.discountPct && <span className="card-discount">−{hero.discountPct}%</span>}
+                  </span>
+                  <span className="btn btn-primary bs-shop-btn">Shop Now</span>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          <div className="bs-side">
+            {rest.map((item) => (
+              <Link href={item.id ? `/product/${item.slug}` : "/shop"} className="bs-tile" key={item.slug}>
+                <span className="bs-rank bs-rank--sm">
+                  No. {String(item.rank).padStart(2, "0")}
+                </span>
+                <div className="bs-tile-media">
                   <Image
-                    src={hero.image}
-                    alt={hero.name}
+                    src={item.image}
+                    alt={item.name}
                     fill
                     unoptimized
-                    style={{ objectFit: "cover" }}
+                    style={{ objectFit: "contain" }}
                   />
                 </div>
-                <div className="bs-hero-info">
-                  <p className="bs-cat">{hero.category}</p>
-                  <h3 className="bs-name">{hero.name}</h3>
-                  <div className="bs-hero-footer">
-                    <span className="bs-price">
-                      {hero.price ? `Rs ${Number(hero.price).toLocaleString()}` : "Price on request"}
-                    </span>
-                    <span className="btn btn-primary bs-shop-btn">Shop Now</span>
-                  </div>
+                <div className="bs-tile-info">
+                  <p className="bs-cat">{item.category}</p>
+                  <h3 className="bs-name bs-name--sm">{item.name}</h3>
+                  <span className="bs-price">
+                    {item.price ? money(item.price) : "Price on request"}
+                    {item.discountPct && <span className="card-discount">−{item.discountPct}%</span>}
+                  </span>
                 </div>
               </Link>
-            )}
-
-            <div className="bs-side">
-              {rest.map((item) => (
-                <Link href={`/product/${item.slug}`} className="bs-tile" key={item.slug}>
-                  <span className="bs-rank bs-rank--sm">
-                    No. {String(item.rank).padStart(2, "0")}
-                  </span>
-                  <div className="bs-tile-media">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      unoptimized
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
-                  <div className="bs-tile-info">
-                    <p className="bs-cat">{item.category}</p>
-                    <h3 className="bs-name bs-name--sm">{item.name}</h3>
-                    <span className="bs-price">
-                      {item.price ? `Rs ${Number(item.price).toLocaleString()}` : "Price on request"}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

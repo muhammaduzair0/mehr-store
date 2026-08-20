@@ -53,24 +53,32 @@ export default function HeroCarousel() {
   const [loading, setLoading] = useState(true);
   const [paused, setPaused] = useState(false);
 
-  // Fetch first product image for each category
+  // Fetch a product image per category — categories often overlap (the same
+  // product can be "featured", "unisex", and "for-him" at once), so fetching
+  // only the first match per slide risks every slide showing the same photo.
+  // Pull a small pool per category instead and pick one no earlier slide used.
   useEffect(() => {
     async function fetchSlides() {
-      const results = await Promise.all(
-        SLIDE_CONFIG.map(async (cfg, i) => {
-          try {
-            const url = cfg.category === "featured"
-              ? "/api/products?featured=true&per_page=1"
-              : `/api/products?category=${cfg.category}&per_page=1`;
-            const res = await fetch(url);
-            const data = await res.json();
-            const image = data?.[0]?.images?.[0]?.src || FALLBACK;
-            return { id: i, ...cfg, image };
-          } catch {
-            return { id: i, ...cfg, image: FALLBACK };
-          }
-        })
-      );
+      const used = new Set<string>();
+      const results: Slide[] = [];
+      for (let i = 0; i < SLIDE_CONFIG.length; i++) {
+        const cfg = SLIDE_CONFIG[i];
+        try {
+          const url = cfg.category === "featured"
+            ? "/api/products?featured=true&per_page=6"
+            : `/api/products?category=${cfg.category}&per_page=6`;
+          const res = await fetch(url);
+          const data = await res.json();
+          const candidates: string[] = Array.isArray(data)
+            ? data.map((p) => p?.images?.[0]?.src).filter(Boolean)
+            : [];
+          const image = candidates.find((src) => !used.has(src)) || candidates[0] || FALLBACK;
+          used.add(image);
+          results.push({ id: i, ...cfg, image });
+        } catch {
+          results.push({ id: i, ...cfg, image: FALLBACK });
+        }
+      }
       setSlides(results);
       setLoading(false);
     }
@@ -111,7 +119,7 @@ export default function HeroCarousel() {
             src={s.image}
             alt={s.label}
             fill
-            style={{ objectFit: "cover" }}
+            style={{ objectFit: "contain" }}
             unoptimized
             priority={i === 0}
           />
