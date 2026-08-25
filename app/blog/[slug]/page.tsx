@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { wp, featuredImage, stripHtml } from "@/lib/wordpress";
+import { wp, featuredImage, stripHtml, decodeEntities } from "@/lib/wordpress";
 
 export const revalidate = 300;
 
@@ -15,13 +15,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!post) return { title: "Journal — Mehr" };
 
   const description = stripHtml(post.excerpt.rendered).slice(0, 160);
+  const title = decodeEntities(post.title.rendered);
   const image = featuredImage(post);
 
   return {
-    title: `${post.title.rendered} — Mehr Journal`,
+    title: `${title} — Mehr Journal`,
     description: description || undefined,
     openGraph: {
-      title: post.title.rendered,
+      title,
       description: description || undefined,
       siteName: "Mehr",
       type: "article",
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title.rendered,
+      title,
       description: description || undefined,
       images: image ? [image] : undefined,
     },
@@ -42,18 +43,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post) notFound();
 
   const image = featuredImage(post);
+  const title = decodeEntities(post.title.rendered);
 
   return (
     <main className="wrap blog-post">
       <p className="eyebrow" style={{ marginTop: 40 }}>
         <Link className="ulink" href="/blog">The journal</Link>
       </p>
-      <h1 className="h-xl" style={{ margin: "14px 0 10px", maxWidth: "22ch" }}>{post.title.rendered}</h1>
+      <h1 className="h-xl" style={{ margin: "14px 0 10px", maxWidth: "22ch" }}>{title}</h1>
       <p className="muted">{fmtDate(post.date)}</p>
 
       {image && (
         <div className="blog-post-media">
-          <Image src={image} alt={post.title.rendered} fill style={{ objectFit: "cover" }} priority />
+          <Image src={image} alt={title} fill style={{ objectFit: "cover" }} priority />
         </div>
       )}
 

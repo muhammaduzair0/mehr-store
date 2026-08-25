@@ -51,5 +51,26 @@ export function featuredImage(post: WPPost): string | null {
 }
 
 export function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "").trim();
+  return decodeEntities(html.replace(/<[^>]*>/g, "")).trim();
+}
+
+// WP's REST API returns title/excerpt HTML-encoded (e.g. "Pakistan&#8217;s"),
+// which is correct for dangerouslySetInnerHTML but renders literally when
+// used as a plain React child (title text, alt attributes, <title> tags) —
+// React doesn't decode entities in text nodes the way a browser parsing HTML
+// does. Decode explicitly wherever title/excerpt are used as plain text.
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+};
+
+export function decodeEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&([a-z]+);/gi, (match, name) => NAMED_ENTITIES[name.toLowerCase()] ?? match);
 }

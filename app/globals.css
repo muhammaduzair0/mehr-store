@@ -40,7 +40,12 @@
 }
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
+  /* Deliberately NOT scroll-behavior: smooth — Next.js App Router scrolls to
+     the top of the page on every <Link> navigation, and with smooth scroll
+     enabled globally that reset becomes an animation that the next page's
+     own layout/content can interrupt mid-flight, leaving the user stranded
+     partway down the page instead of at the top. No in-page anchor links
+     rely on smooth scrolling here, so plain instant scroll is correct. */
   /* Belt-and-braces: a single un-clipped full-bleed section anywhere on the
      site (carousels, marquees, off-canvas drawers) can otherwise widen the
      whole page's scrollable area by a few px, showing as a sliver at the

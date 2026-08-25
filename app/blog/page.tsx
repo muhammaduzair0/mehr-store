@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { wp, featuredImage, stripHtml, type WPPost } from "@/lib/wordpress";
+import { wp, featuredImage, stripHtml, decodeEntities, type WPPost } from "@/lib/wordpress";
 
 export const metadata = { title: "Journal — Mehr" };
 export const revalidate = 300;
@@ -44,18 +44,19 @@ export default async function BlogPage() {
           <div className="blog-grid">
             {posts.map((post) => {
               const image = featuredImage(post);
+              const title = decodeEntities(post.title.rendered);
               return (
                 <article className="blog-card" key={post.id}>
                   <Link className="blog-card-media" href={`/blog/${post.slug}`}>
                     {image ? (
-                      <Image src={image} alt={post.title.rendered} fill style={{ objectFit: "cover" }} />
+                      <Image src={image} alt={title} fill style={{ objectFit: "cover" }} />
                     ) : (
                       <div className="ph" />
                     )}
                   </Link>
                   <p className="blog-card-date">{fmtDate(post.date)}</p>
                   <h2 className="blog-card-title">
-                    <Link href={`/blog/${post.slug}`}>{post.title.rendered}</Link>
+                    <Link href={`/blog/${post.slug}`}>{title}</Link>
                   </h2>
                   <p className="blog-card-excerpt">{stripHtml(post.excerpt.rendered).slice(0, 140)}</p>
                   <Link className="ulink" href={`/blog/${post.slug}`}>Read more</Link>
