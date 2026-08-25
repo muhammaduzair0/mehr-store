@@ -14,7 +14,19 @@ interface Slide {
   category: string;
 }
 
-const SLIDE_CONFIG = [
+interface HeroBanner {
+  id: number;
+  eyebrow: string;
+  headline: string;
+  href: string;
+  image: string | null;
+}
+
+// Defaults, used per-slide whenever the WordPress-managed banner (Settings >
+// Hero Banners in wp-admin) hasn't set that field yet — including when the
+// mu-plugin itself isn't deployed, so the carousel still renders. "category"
+// only feeds the product-photo fallback below; it's not WP-editable.
+const SLIDE_DEFAULTS = [
   {
     category: "featured",
     label: "Best Sellers",
@@ -53,31 +65,51 @@ export default function HeroCarousel() {
   const [loading, setLoading] = useState(true);
   const [paused, setPaused] = useState(false);
 
-  // Fetch a product image per category — categories often overlap (the same
-  // product can be "featured", "unisex", and "for-him" at once), so fetching
-  // only the first match per slide risks every slide showing the same photo.
-  // Pull a small pool per category instead and pick one no earlier slide used.
+  // Text/link/image come from WordPress (Settings > Hero Banners) when set;
+  // any field a slide leaves blank there falls back to SLIDE_DEFAULTS. For
+  // images specifically, an unset slide falls back further to a live product
+  // photo — categories often overlap (the same product can be "featured",
+  // "unisex", and "for-him" at once), so fetching only the first match per
+  // slide risks every slide showing the same photo. Pull a small pool per
+  // category instead and pick one no earlier slide used.
   useEffect(() => {
     async function fetchSlides() {
+      let banners: HeroBanner[] = [];
+      try {
+        const res = await fetch("/api/hero-banners");
+        const data = await res.json();
+        if (Array.isArray(data) && data.length) banners = data;
+      } catch {
+        // Hero-banners endpoint not deployed yet — SLIDE_DEFAULTS covers it below.
+      }
+
       const used = new Set<string>();
       const results: Slide[] = [];
-      for (let i = 0; i < SLIDE_CONFIG.length; i++) {
-        const cfg = SLIDE_CONFIG[i];
-        try {
-          const url = cfg.category === "featured"
-            ? "/api/products?featured=true&per_page=6"
-            : `/api/products?category=${cfg.category}&per_page=6`;
-          const res = await fetch(url);
-          const data = await res.json();
-          const candidates: string[] = Array.isArray(data)
-            ? data.map((p) => p?.images?.[0]?.src).filter(Boolean)
-            : [];
-          const image = candidates.find((src) => !used.has(src)) || candidates[0] || FALLBACK;
-          used.add(image);
-          results.push({ id: i, ...cfg, image });
-        } catch {
-          results.push({ id: i, ...cfg, image: FALLBACK });
+      for (let i = 0; i < SLIDE_DEFAULTS.length; i++) {
+        const def = SLIDE_DEFAULTS[i];
+        const banner = banners[i];
+        const eyebrow = banner?.eyebrow || def.eyebrow;
+        const headline = banner?.headline || def.headline;
+        const href = banner?.href || def.href;
+        let image = banner?.image || "";
+
+        if (!image) {
+          try {
+            const url = def.category === "featured"
+              ? "/api/products?featured=true&per_page=6"
+              : `/api/products?category=${def.category}&per_page=6`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const candidates: string[] = Array.isArray(data)
+              ? data.map((p) => p?.images?.[0]?.src).filter(Boolean)
+              : [];
+            image = candidates.find((src) => !used.has(src)) || candidates[0] || FALLBACK;
+          } catch {
+            image = FALLBACK;
+          }
         }
+        used.add(image);
+        results.push({ id: i, label: def.label, category: def.category, eyebrow, headline, href, image });
       }
       setSlides(results);
       setLoading(false);
@@ -85,8 +117,8 @@ export default function HeroCarousel() {
     fetchSlides();
   }, []);
 
-  const next = useCallback(() => setCurrent((c) => (c + 1) % SLIDE_CONFIG.length), []);
-  const prev = useCallback(() => setCurrent((c) => (c - 1 + SLIDE_CONFIG.length) % SLIDE_CONFIG.length), []);
+  const next = useCallback(() => setCurrent((c) => (c + 1) % SLIDE_DEFAULTS.length), []);
+  const prev = useCallback(() => setCurrent((c) => (c - 1 + SLIDE_DEFAULTS.length) % SLIDE_DEFAULTS.length), []);
   const goTo = useCallback((i: number) => setCurrent(i), []);
 
   // Auto-play
@@ -119,7 +151,7 @@ export default function HeroCarousel() {
             src={s.image}
             alt={s.label}
             fill
-            style={{ objectFit: "contain" }}
+            style={{ objectFit: "cover" }}
             unoptimized
             priority={i === 0}
           />

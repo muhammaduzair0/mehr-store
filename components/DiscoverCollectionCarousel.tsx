@@ -26,8 +26,21 @@ function resolvePrice(p: WCProduct): number | null {
   return null;
 }
 
+// Centering the active slide leaves nothing to show on one side whenever
+// it's the first or last real slide — a large empty gap next to a
+// floating arrow. Render 3 back-to-back copies of the product list and
+// keep `pos` (the track position) parked in the middle copy so there are
+// always slides on both sides; only the very first mount starts there,
+// every other position change re-centers back into the middle copy
+// right after its transition finishes, invisibly (transition off for
+// that one jump).
 export default function DiscoverCollectionCarousel({ heading, products }: DiscoverCollectionCarouselProps) {
-  const [index, setIndex] = useState(0);
+  const n = products.length;
+  const loop = n > 1;
+  const loopProducts = loop ? [...products, ...products, ...products] : products;
+
+  const [pos, setPos] = useState(loop ? n : 0);
+  const [jumping, setJumping] = useState(false);
   const [step, setStep] = useState(0); // slide width + gap, in px
   const [viewportWidth, setViewportWidth] = useState(0);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -56,25 +69,48 @@ export default function DiscoverCollectionCarousel({ heading, products }: Discov
     return () => window.removeEventListener("resize", measure);
   }, [products.length]);
 
+  const index = loop ? ((pos % n) + n) % n : pos;
+
   const goTo = useCallback(
     (i: number) => {
-      if (!products.length) return;
-      setIndex((i + products.length) % products.length);
+      if (!n) return;
+      if (!loop) {
+        setPos((i + n) % n);
+        return;
+      }
+      // Jump within the current copy so a dot click travels the short way,
+      // not always back to the middle copy.
+      const base = Math.floor(pos / n) * n;
+      setPos(base + ((i % n) + n) % n);
     },
-    [products.length]
+    [loop, n, pos]
   );
 
-  const next = useCallback(() => goTo(index + 1), [goTo, index]);
-  const prev = useCallback(() => goTo(index - 1), [goTo, index]);
+  const next = useCallback(() => setPos((p) => (loop ? p + 1 : (p + 1) % n)), [loop, n]);
+  const prev = useCallback(() => setPos((p) => (loop ? p - 1 : (p - 1 + n) % n)), [loop, n]);
+
+  // Once a transition into the outer copies finishes, snap back to the
+  // equivalent slide in the middle copy with the transition switched off,
+  // then switch it back on next frame — invisible to the viewer.
+  useEffect(() => {
+    if (!loop) return;
+    if (pos >= n && pos < 2 * n) return;
+    const t = setTimeout(() => {
+      setJumping(true);
+      setPos(n + index);
+      requestAnimationFrame(() => requestAnimationFrame(() => setJumping(false)));
+    }, 560);
+    return () => clearTimeout(t);
+  }, [pos, loop, n, index]);
 
   // Auto-advance every few seconds, pausing on hover/touch.
   useEffect(() => {
-    if (products.length < 2) return;
+    if (n < 2) return;
     const timer = setInterval(() => {
-      if (!pausedRef.current) setIndex((i) => (i + 1) % products.length);
+      if (!pausedRef.current) setPos((p) => p + 1);
     }, 3500);
     return () => clearInterval(timer);
-  }, [products.length]);
+  }, [n]);
 
   const pause = useCallback(() => {
     pausedRef.current = true;
@@ -106,15 +142,18 @@ export default function DiscoverCollectionCarousel({ heading, products }: Discov
         <div
           className="dcv-track"
           ref={trackRef}
-          style={{ transform: `translateX(${viewportWidth / 2 - step / 2 - index * step}px)` }}
+          style={{
+            transform: `translateX(${viewportWidth / 2 - step / 2 - pos * step}px)`,
+            transition: jumping ? "none" : undefined,
+          }}
         >
-          {products.map((p, i) => {
+          {loopProducts.map((p, i) => {
             const priceNum = resolvePrice(p);
             const pct = p.on_sale ? discountPercent(p.regular_price, p.sale_price) : null;
-            const isActive = i === index;
+            const isActive = i === pos;
             return (
               <div
-                key={p.id}
+                key={`${p.id}-${i}`}
                 ref={i === 0 ? slideRef : undefined}
                 className={"dcv-slide" + (isActive ? " active" : "")}
               >

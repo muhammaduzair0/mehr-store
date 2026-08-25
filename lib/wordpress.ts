@@ -18,6 +18,14 @@ export interface WPPost {
   };
 }
 
+export interface HeroBanner {
+  id: number;
+  eyebrow: string;
+  headline: string;
+  href: string;
+  image: string | null;
+}
+
 export const wp = {
   getPosts: (params?: Record<string, string>) =>
     axios
@@ -28,6 +36,14 @@ export const wp = {
     axios
       .get(`${BASE_URL}/posts`, { params: { slug, _embed: "1" } })
       .then((r) => (r.data as WPPost[])[0] ?? null),
+
+  // Served by the "Mehr Hero Banners" mu-plugin (Settings > Hero Banners in
+  // wp-admin), not WP core — hence the separate "mehr/v1" namespace instead
+  // of "wp/v2".
+  getHeroBanners: () =>
+    axios
+      .get(`${process.env.NEXT_PUBLIC_WC_URL}/wp-json/mehr/v1/hero-banners`)
+      .then((r) => r.data as HeroBanner[]),
 };
 
 export function featuredImage(post: WPPost): string | null {

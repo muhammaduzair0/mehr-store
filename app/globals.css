@@ -2929,14 +2929,9 @@ textarea {
   position: relative;
   width: 100%;
   height: calc(100vh - 124px);
-  min-height: 560px;
-  max-height: 900px;
+  min-height: 520px;
+  max-height: 680px;
   overflow: hidden;
-  /* .hc-image is deliberately shorter than this section (see its own
-     comment) to reserve clear space at the bottom for the dots — this is
-     what shows through that reserved strip. Without it, the strip falls
-     back to the page's own background instead of matching the dark photo,
-     showing as a pale band right behind the dots. */
   background: oklch(0.08 0.01 258);
 }
 
@@ -2957,42 +2952,40 @@ textarea {
   100% { background-position: -200% 0; }
 }
 
-/* Full-bleed slide images — bottom is reserved (not inset:0) so the image
-   never renders behind the dots. object-fit: contain always fills its box
-   edge-to-edge on this wide-relative-to-portrait-photo layout (there's no
-   spare vertical room to redistribute regardless of object-position), so
-   without this gap, each photo's own baked-in caption text — which sits
-   near the bottom of the source photo — ends up wherever the box's bottom
-   edge happens to be, directly under the dots, at any hero height. */
+/* Full-bleed slide images. object-fit: cover fills the box edge-to-edge
+   (cropping rather than letterboxing), so the dark .hc-overlay gradient
+   below is what keeps the dots legible at the bottom, not reserved space. */
 .hc-image {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 64px;
+  inset: 0;
   opacity: 0;
   transition: opacity 1.2s ease-in-out;
-  /* Product photos are shot tall; object-fit: contain letterboxes rather than
-     cropping the bottle out of frame — this blends with their dark backdrops. */
   background: oklch(0.08 0.01 258);
 }
 
 .hc-image.active { opacity: 1; z-index: 1; }
 
-.hc-image img { object-position: center top; }
+.hc-image img { object-position: center; }
 
 /* Dark gradient so overlaid text/buttons stay legible on any photo */
 .hc-overlay {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.25) 0%,
-    rgba(0, 0, 0, 0.1) 35%,
-    rgba(0, 0, 0, 0.35) 75%,
-    rgba(0, 0, 0, 0.55) 100%
-  );
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.1) 45%,
+      rgba(0, 0, 0, 0.45) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.1) 35%,
+      rgba(0, 0, 0, 0.35) 75%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
   pointer-events: none;
 }
 
@@ -3007,7 +3000,7 @@ textarea {
 }
 
 .hc-content-inner {
-  width: min(44%, 480px);
+  width: min(46%, 520px);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -3026,7 +3019,7 @@ textarea {
 
 .hc-headline {
   font-family: var(--font-display, "Playfair Display", Georgia, serif);
-  font-size: clamp(1.9rem, 3.6vw, 3.25rem);
+  font-size: clamp(1.9rem, 3.8vw, 3.75rem);
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.01em;
@@ -3136,7 +3129,7 @@ textarea {
    ============================================================  */
 
 .discover {
-  background: oklch(0.16 0.012 258);
+  background: var(--surface);
   padding-block: clamp(56px, 7vw, 96px);
   overflow: hidden;
 }
@@ -3148,7 +3141,7 @@ textarea {
   font-size: clamp(20px, 2.2vw, 28px);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--on-ink);
+  color: var(--ink);
   margin-bottom: clamp(32px, 4.5vw, 52px);
 }
 
@@ -3178,8 +3171,8 @@ textarea {
   align-items: center;
   border-radius: 14px;
   padding: clamp(18px, 2vw, 24px) 18px 22px;
-  background: oklch(0.32 0.01 258 / 0.55);
-  filter: grayscale(0.6) brightness(0.72);
+  background: oklch(0.93 0.006 258 / 0.8);
+  filter: grayscale(0.5) brightness(0.98);
   transform: scale(0.88);
   transition: all 0.55s var(--ease);
 }
@@ -3191,11 +3184,10 @@ textarea {
 
 .dcv-slide.active .dcv-card {
   width: clamp(300px, 26vw, 360px);
-  background: oklch(1 0 0 / 0.5);
-  backdrop-filter: blur(6px);
+  background: #fff;
   filter: none;
   transform: scale(1.08);
-  box-shadow: 0 30px 70px oklch(0 0 0 / 0.4);
+  box-shadow: 0 24px 55px oklch(0.3 0.02 258 / 0.16);
 }
 
 .dcv-price {
@@ -3212,7 +3204,7 @@ textarea {
 
 .dcv-slide:not(.active) .dcv-price {
   background: transparent;
-  color: oklch(0.85 0.01 250);
+  color: oklch(0.42 0.01 250);
 }
 .dcv-discount {
   margin-left: 6px;
@@ -3241,7 +3233,7 @@ textarea {
 }
 
 .dcv-slide:not(.active) .dcv-name {
-  color: oklch(0.82 0.008 250);
+  color: oklch(0.45 0.01 258);
 }
 
 .dcv-shop-btn {
@@ -3251,13 +3243,13 @@ textarea {
 
 .dcv-slide:not(.active) .dcv-shop-btn {
   border-color: oklch(0.6 0.01 250);
-  color: oklch(0.75 0.01 250);
+  color: oklch(0.4 0.01 258);
 }
 
 .dcv-slide--skeleton {
   height: 420px;
   border-radius: 14px;
-  background: linear-gradient(180deg, oklch(0.3 0.01 258) 0%, oklch(0.22 0.01 258) 100%);
+  background: linear-gradient(180deg, oklch(0.94 0.006 258) 0%, oklch(0.88 0.008 258) 100%);
 }
 
 /* Arrows — dark circular buttons overlapping the dimmed neighbor slides */
@@ -3313,7 +3305,7 @@ textarea {
 .dcv-dot.active {
   width: 10px;
   height: 10px;
-  background: var(--on-ink);
+  background: var(--ink);
 }
 
 @media (max-width: 720px) {
