@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
 const NAV_LINKS = [
-  { label: "Perfumes", href: "/shop" },
   { label: "Men", href: "/shop?category=for-him" },
   { label: "Women", href: "/shop?category=for-her" },
   { label: "Unisex", href: "/shop?category=unisex" },
