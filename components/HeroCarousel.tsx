@@ -151,7 +151,7 @@ export default function HeroCarousel() {
             src={s.image}
             alt={s.label}
             fill
-            style={{ objectFit: "cover" }}
+            className="hc-slide-img"
             unoptimized
             priority={i === 0}
           />

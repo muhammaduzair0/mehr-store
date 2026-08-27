@@ -2962,7 +2962,10 @@ textarea {
 
 /* Full-bleed slide images. object-fit: cover fills the box edge-to-edge
    (cropping rather than letterboxing), so the dark .hc-overlay gradient
-   below is what keeps the dots legible at the bottom, not reserved space. */
+   below is what keeps the dots legible at the bottom, not reserved space.
+   On mobile this switches to contain (see media query below) — the hero
+   is narrower there, so cover crops too much off tall product-bottle
+   photos; the dark .hc-image background blends with any letterbox bars. */
 .hc-image {
   position: absolute;
   inset: 0;
@@ -2973,7 +2976,7 @@ textarea {
 
 .hc-image.active { opacity: 1; z-index: 1; }
 
-.hc-image img { object-position: center; }
+.hc-slide-img { object-fit: cover; object-position: center; }
 
 /* Dark gradient so overlaid text/buttons stay legible on any photo */
 .hc-overlay {
@@ -3106,6 +3109,8 @@ textarea {
     height: 85vh;
     min-height: 480px;
   }
+
+  .hc-slide-img { object-fit: contain; }
 
   .hc-content {
     justify-content: center;
