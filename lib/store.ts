@@ -100,7 +100,6 @@ function createLocalStore<T>(key: string, fallback: T) {
 /* ---------------- store instances ---------------- */
 
 const cartStore   = createLocalStore<CartItem[]>("mehr_cart_v1", []);
-const wishStore   = createLocalStore<string[]>("mehr_wish_v1", []);
 const ordersStore = createLocalStore<Order[]>("mehr_orders_v1", []);
 const userStore   = createLocalStore<User | null>("mehr_user", null);
 const addrStore   = createLocalStore<Address>("mehr_addr", {});
@@ -157,25 +156,6 @@ export const Cart = {
   },
 };
 
-/* ---------------- Wishlist ---------------- */
-
-export const Wish = {
-  items: () => wishStore.get(),
-  has: (id: string) => wishStore.get().includes(id),
-  count: () => wishStore.get().length,
-  toggle(id: string) {
-    const a = wishStore.get().slice();
-    const i = a.indexOf(id);
-    if (i >= 0) a.splice(i, 1);
-    else a.unshift(id);
-    wishStore.set(a);
-    return a.includes(id);
-  },
-  remove(id: string) {
-    wishStore.set(wishStore.get().filter((x) => x !== id));
-  },
-};
-
 /* ---------------- Orders ---------------- */
 
 export const Orders = {
@@ -202,10 +182,6 @@ export const AddressBook = {
 
 export function useCart(): CartItem[] {
   return useSyncExternalStore(cartStore.subscribe, cartStore.getSnapshot, cartStore.getServerSnapshot);
-}
-
-export function useWishlist(): string[] {
-  return useSyncExternalStore(wishStore.subscribe, wishStore.getSnapshot, wishStore.getServerSnapshot);
 }
 
 export function useOrders(): Order[] {

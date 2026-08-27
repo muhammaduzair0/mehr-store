@@ -70,12 +70,9 @@ export default function MobileMenu() {
             {n.label}
           </Link>
         ))}
-        <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--line)", display: "flex", gap: 16 }}>
-          <Link className="btn btn-outline" href="/account" onClick={MobileMenuUI.close} style={{ flex: 1, textAlign: "center" }}>
+        <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid var(--line)" }}>
+          <Link className="btn btn-primary" href="/account" onClick={MobileMenuUI.close} style={{ display: "block", textAlign: "center" }}>
             Account
-          </Link>
-          <Link className="btn btn-primary" href="/account?tab=wishlist" onClick={MobileMenuUI.close} style={{ flex: 1, textAlign: "center" }}>
-            Wishlist
           </Link>
         </div>
       </nav>

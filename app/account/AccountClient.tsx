@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import ProductGrid from "@/components/ProductGrid";
 import { money } from "@/lib/format";
 import {
   Address,
@@ -14,12 +13,11 @@ import {
   useAddress,
   useOrders,
   useUser,
-  useWishlist,
 } from "@/lib/store";
 
 type AuthMode = "signin" | "register";
-type Tab = "overview" | "orders" | "wishlist" | "addresses" | "details";
-const VALID_TABS: Tab[] = ["overview", "orders", "wishlist", "addresses", "details"];
+type Tab = "overview" | "orders" | "addresses" | "details";
+const VALID_TABS: Tab[] = ["overview", "orders", "addresses", "details"];
 
 const fmtDate = (ts: number) =>
   new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -97,7 +95,6 @@ export default function AccountClient() {
   const params = useSearchParams();
   const user = useUser();
   const localOrders = useOrders();
-  const wishlist = useWishlist();
   const address = useAddress();
 
   const [authMode, setAuthMode] = useState<AuthMode>("signin");
@@ -107,7 +104,6 @@ export default function AccountClient() {
   const [addrSaved, setAddrSaved] = useState(false);
   const [detailsSaved, setDetailsSaved] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
-  const [wishProducts, setWishProducts] = useState<any[]>([]);
   const [wcOrders, setWcOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
@@ -128,7 +124,7 @@ export default function AccountClient() {
   }, []);
 
   // The initial `tab` state only reads the URL once, at mount — a header/
-  // footer link to e.g. /account?tab=wishlist while already on this page
+  // footer link to e.g. /account?tab=orders while already on this page
   // wouldn't otherwise switch tabs. Re-sync whenever the param changes.
   useEffect(() => {
     const requested = params.get("tab") as Tab | null;
@@ -165,24 +161,6 @@ export default function AccountClient() {
     for (const o of wcOrders) byNo.set(o.no, o); // WooCommerce is authoritative where it overlaps
     return [...byNo.values()].sort((a, b) => b.date - a.date);
   }, [localOrders, wcOrders]);
-
-  useEffect(() => {
-    if (!wishlist.length) {
-      setWishProducts([]);
-      return;
-    }
-    async function fetchWishProducts() {
-      const results = await Promise.all(
-        wishlist.map((id) =>
-          fetch(`/api/products/${id}`)
-            .then((r) => (r.ok ? r.json() : null))
-            .catch(() => null)
-        )
-      );
-      setWishProducts(results.filter((p) => p && p.id));
-    }
-    fetchWishProducts();
-  }, [wishlist]);
 
   async function submitAuth(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -282,7 +260,7 @@ export default function AccountClient() {
             <p className="muted center" style={{ fontSize: 14, marginBottom: 30 }}>
               {authMode === "register"
                 ? "Join Mehr — 10% off your first order."
-                : "Sign in to track orders and your wishlist."}
+                : "Sign in to track your orders."}
             </p>
 
             <div className="auth-tabs">
@@ -360,7 +338,6 @@ export default function AccountClient() {
               [
                 ["overview", "Overview"],
                 ["orders", "Orders"],
-                ["wishlist", "Wishlist"],
                 ["addresses", "Addresses"],
                 ["details", "Details"],
               ] as [Tab, string][]
@@ -371,7 +348,6 @@ export default function AccountClient() {
                 onClick={() => setTab(key)}
               >
                 {label}
-                {key === "wishlist" && wishlist.length > 0 && <span className="acct-pill">{wishlist.length}</span>}
               </button>
             ))}
           </nav>
@@ -383,10 +359,6 @@ export default function AccountClient() {
                   <button className="ov-stat" onClick={() => setTab("orders")}>
                     <span className="serif-num">{orders.length}</span>
                     <span>Orders placed</span>
-                  </button>
-                  <button className="ov-stat" onClick={() => setTab("wishlist")}>
-                    <span className="serif-num">{wishlist.length}</span>
-                    <span>Saved items</span>
                   </button>
                   <Link className="ov-stat" href="/shop">
                     <span className="serif-num">10%</span>
@@ -421,23 +393,6 @@ export default function AccountClient() {
                       When you place an order it will appear here.
                     </p>
                     <Link className="btn btn-outline" href="/shop">Start shopping</Link>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {tab === "wishlist" && (
-              <section>
-                <h2 className="acct-h">Your wishlist</h2>
-                {wishProducts.length ? (
-                  <ProductGrid products={wishProducts} />
-                ) : (
-                  <div className="acct-empty">
-                    <p className="h-md" style={{ fontWeight: 300 }}>Nothing saved yet</p>
-                    <p className="muted" style={{ margin: "10px 0 22px" }}>
-                      Tap the heart on any product to keep it here.
-                    </p>
-                    <Link className="btn btn-outline" href="/shop">Browse the collection</Link>
                   </div>
                 )}
               </section>

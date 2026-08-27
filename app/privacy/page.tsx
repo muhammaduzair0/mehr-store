@@ -50,7 +50,7 @@ export default function PrivacyPage() {
         <div className="policy-block">
           <h2 className="h-md" style={{ fontWeight: 300 }}>Local storage</h2>
           <p>
-            Your cart, wishlist, and account session are stored in your browser&apos;s local storage, not on our
+            Your cart and account session are stored in your browser&apos;s local storage, not on our
             servers. Clearing your browser data will clear them.
           </p>
         </div>

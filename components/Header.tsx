@@ -5,16 +5,14 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { money } from "@/lib/format";
 import { FREE_SHIP } from "@/lib/data";
-import { useCart, useWishlist } from "@/lib/store";
+import { useCart } from "@/lib/store";
 import { CartDrawerUI, MobileMenuUI } from "@/lib/ui";
-import { BagIcon, HeartIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
+import { BagIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
 import NavTabs, { NavTabsFallback } from "./NavTabs";
 
 export default function Header() {
   const cart = useCart();
-  const wishlist = useWishlist();
   const cartCount = cart.reduce((n, i) => n + i.qty, 0);
-  const wishCount = wishlist.length;
 
   return (
     <>
@@ -61,16 +59,6 @@ export default function Header() {
           <div className="header-right">
             <Link className="icon-btn hide-sm" href="/search" aria-label="Search">
               <SearchIcon />
-            </Link>
-            <Link
-              className="icon-btn"
-              href="/account?tab=wishlist"
-              aria-label="Wishlist"
-            >
-              <HeartIcon />
-              <span className="wish-count" data-empty={wishCount === 0}>
-                {wishCount}
-              </span>
             </Link>
             <button
               className="icon-btn"
