@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { wp, featuredImage, stripHtml, decodeEntities } from "@/lib/wordpress";
+import { wp, featuredImage, stripHtml, decodeEntities, buildBlogPostJsonLd } from "@/lib/wordpress";
 
 export const revalidate = 300;
 
@@ -46,24 +46,30 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const title = decodeEntities(post.title.rendered);
 
   return (
-    <main className="wrap blog-post">
-      <p className="eyebrow" style={{ marginTop: 40 }}>
-        <Link className="ulink" href="/blog">The journal</Link>
-      </p>
-      <h1 className="h-xl" style={{ margin: "14px 0 10px", maxWidth: "22ch" }}>{title}</h1>
-      <p className="muted">{fmtDate(post.date)}</p>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBlogPostJsonLd(post)) }}
+      />
+      <main className="wrap blog-post">
+        <p className="eyebrow" style={{ marginTop: 40 }}>
+          <Link className="ulink" href="/blog">The journal</Link>
+        </p>
+        <h1 className="h-xl" style={{ margin: "14px 0 10px", maxWidth: "22ch" }}>{title}</h1>
+        <p className="muted">{fmtDate(post.date)}</p>
 
-      {image && (
-        <div className="blog-post-media">
-          <Image src={image} alt={title} fill style={{ objectFit: "cover" }} priority />
+        {image && (
+          <div className="blog-post-media">
+            <Image src={image} alt={title} fill style={{ objectFit: "cover" }} priority />
+          </div>
+        )}
+
+        <div className="blog-post-body" dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
+
+        <div style={{ marginTop: 48 }}>
+          <Link className="btn btn-outline" href="/blog">← Back to the journal</Link>
         </div>
-      )}
-
-      <div className="blog-post-body" dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
-
-      <div style={{ marginTop: 48 }}>
-        <Link className="btn btn-outline" href="/blog">← Back to the journal</Link>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

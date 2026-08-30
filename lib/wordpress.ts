@@ -1,4 +1,5 @@
 import axios from "axios";
+import { SITE_URL } from "@/lib/site";
 
 // Separate from lib/woocommerce.ts on purpose — this talks to WP core's
 // own REST API (wp/v2), not the WooCommerce plugin's (wc/v3), and reads
@@ -73,4 +74,21 @@ export function decodeEntities(text: string): string {
     .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
     .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
     .replace(/&([a-z]+);/gi, (match, name) => NAMED_ENTITIES[name.toLowerCase()] ?? match);
+}
+
+export function buildBlogPostJsonLd(post: WPPost) {
+  const title = decodeEntities(post.title.rendered);
+  const image = featuredImage(post);
+  const author = post._embedded?.author?.[0]?.name;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description: stripHtml(post.excerpt.rendered).slice(0, 200) || undefined,
+    image: image || undefined,
+    datePublished: post.date,
+    author: author ? { "@type": "Person", name: author } : { "@type": "Organization", name: "Mehr" },
+    publisher: { "@type": "Organization", name: "Mehr", logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
+    mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+  };
 }
