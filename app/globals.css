@@ -2817,24 +2817,28 @@ textarea {
 }
 
 /* Full-bleed slide images. object-fit: cover fills the box edge-to-edge
-   (cropping rather than letterboxing), so the dark .hc-overlay gradient
-   below is what keeps the dots legible at the bottom, not reserved space.
-   On mobile this switches to contain (see media query below) — the hero
-   is narrower there, so cover crops too much off tall product-bottle
-   photos; the dark .hc-image background blends with any letterbox bars. */
+   (cropping rather than letterboxing). On mobile this switches to contain
+   (see media query below) — the hero is narrower there, so cover crops too
+   much off tall product-bottle photos; the light .hc-image background
+   blends with any letterbox bars, keeping them light like the rest of the
+   redesign (dark text over a dark letterbox bar would be unreadable). */
 .hc-image {
   position: absolute;
   inset: 0;
   opacity: 0;
   transition: opacity 1.2s ease-in-out;
-  background: oklch(0.08 0.01 258);
+  background: var(--surface);
 }
 
 .hc-image.active { opacity: 1; z-index: 1; }
 
 .hc-slide-img { object-fit: cover; object-position: center; }
 
-/* Dark gradient so overlaid text/buttons stay legible on any photo */
+/* Soft light gradient — the redesign assumes light, airy product photography
+   (fabric-draped pedestals, natural light), so this is a safety net for
+   contrast rather than the primary legibility mechanism .hc-overlay used to
+   be. Lightens toward the text side, and adds a light scrim at the very
+   bottom so the dots stay readable regardless of what's directly behind them. */
 .hc-overlay {
   position: absolute;
   inset: 0;
@@ -2842,21 +2846,19 @@ textarea {
   background:
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.1) 45%,
-      rgba(0, 0, 0, 0.45) 100%
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.35) 45%,
+      rgba(255, 255, 255, 0.72) 100%
     ),
     linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.25) 0%,
-      rgba(0, 0, 0, 0.1) 35%,
-      rgba(0, 0, 0, 0.35) 75%,
-      rgba(0, 0, 0, 0.55) 100%
+      0deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0) 18%
     );
   pointer-events: none;
 }
 
-/* Text content — right-aligned over the image, constrained so it never crosses into the product */
+/* Text content — left-aligned over the image, constrained so it never crosses into the product */
 .hc-content {
   position: absolute;
   inset: 0;
@@ -2866,47 +2868,91 @@ textarea {
   padding: 0 clamp(24px, 8vw, 100px);
 }
 
+/* A frosted panel behind the text, not just a page-wide overlay — legibility
+   this way holds regardless of how bright or dark the photo behind it is,
+   so it doesn't depend on every future hero photo being evenly lit. */
 .hc-content-inner {
-  width: min(46%, 520px);
+  width: min(46%, 480px);
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: center;
-  text-align: right;
-  color: #fff;
+  text-align: left;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  padding: clamp(24px, 3vw, 40px);
 }
 
 .hc-content .eyebrow {
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 18px;
+  color: var(--muted);
+  margin-bottom: 16px;
 }
 
 .hc-headline {
   font-family: var(--font-display, "Playfair Display", Georgia, serif);
-  font-size: clamp(1.9rem, 3.8vw, 3.75rem);
+  font-style: italic;
+  font-size: clamp(1.9rem, 3.6vw, 3.5rem);
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  color: #fff;
-  margin: 0 0 32px;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+  color: var(--ink);
+  margin: 0 0 20px;
+}
+
+.hc-bullets {
+  list-style: none;
+  margin: 0 0 30px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hc-bullets li {
+  font-size: 14.5px;
+  color: var(--ink-2);
+  padding-left: 18px;
+  position: relative;
+}
+
+.hc-bullets li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
 }
 
 .hc-shop-btn {
-  background: #fff;
-  color: #111;
-  border: none;
-  border-radius: 25px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 13px 24px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background 0.2s, color 0.2s;
+}
+
+.hc-shop-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .hc-shop-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--ink);
+  color: var(--on-ink, #fff);
 }
 
-/* Arrows — no background, just an icon with a soft white hover circle */
+/* Arrows — no background, just an icon with a soft dark hover circle */
 .hc-arrow {
   position: absolute;
   top: 50%;
@@ -2916,30 +2962,33 @@ textarea {
   height: 48px;
   display: grid;
   place-items: center;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.55);
   border: none;
   border-radius: 50%;
-  color: #fff;
+  color: var(--ink);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .hc-arrow:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .hc-arrow--prev { left: 24px; }
 .hc-arrow--next { right: 24px; }
 
-/* Bottom-center dots */
+/* Dots — vertical, right edge, like the reference. Switches to horizontal
+   bottom-center on mobile in the media query below, since a tall vertical
+   stack doesn't fit a short mobile hero as comfortably. */
 .hc-dots {
   position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 4;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
   align-items: center;
 }
 
@@ -2947,16 +2996,18 @@ textarea {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.45);
-  border: none;
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  opacity: 0.45;
   padding: 0;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
 }
 
 .hc-dot.active {
-  background: #fff;
-  transform: scale(1.25);
+  background: var(--ink);
+  opacity: 1;
+  transform: scale(1.15);
 }
 
 /* Mobile */
@@ -2980,6 +3031,18 @@ textarea {
     text-align: center;
   }
 
+  .hc-bullets {
+    align-items: center;
+  }
+
+  .hc-bullets li {
+    padding-left: 0;
+  }
+
+  .hc-bullets li::before {
+    display: none;
+  }
+
   .hc-headline {
     font-size: clamp(1.9rem, 8vw, 2.75rem);
   }
@@ -2991,6 +3054,15 @@ textarea {
 
   .hc-arrow--prev { left: 12px; }
   .hc-arrow--next { right: 12px; }
+
+  .hc-dots {
+    right: auto;
+    top: auto;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    flex-direction: row;
+  }
 }
 
  /* ============================================================

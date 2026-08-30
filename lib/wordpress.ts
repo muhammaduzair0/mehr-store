@@ -25,6 +25,7 @@ export interface HeroBanner {
   headline: string;
   href: string;
   image: string | null;
+  bullets: string[];
 }
 
 export const wp = {

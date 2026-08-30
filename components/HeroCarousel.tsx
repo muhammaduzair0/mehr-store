@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowIcon } from "./icons";
 
 interface Slide {
   id: number;
@@ -12,6 +13,7 @@ interface Slide {
   href: string;
   image: string;
   category: string;
+  bullets: string[];
 }
 
 interface HeroBanner {
@@ -20,6 +22,7 @@ interface HeroBanner {
   headline: string;
   href: string;
   image: string | null;
+  bullets: string[];
 }
 
 // Defaults, used per-slide whenever the WordPress-managed banner (Settings >
@@ -58,12 +61,15 @@ const SLIDE_DEFAULTS = [
 ];
 
 const FALLBACK = "/whisper-campaign.png";
+// A swipe shorter than this reads as a tap/scroll, not an intentional slide change.
+const SWIPE_THRESHOLD_PX = 40;
 
 export default function HeroCarousel() {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(true);
   const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   // Text/link/image come from WordPress (Settings > Hero Banners) when set;
   // any field a slide leaves blank there falls back to SLIDE_DEFAULTS. For
@@ -91,6 +97,7 @@ export default function HeroCarousel() {
         const eyebrow = banner?.eyebrow || def.eyebrow;
         const headline = banner?.headline || def.headline;
         const href = banner?.href || def.href;
+        const bullets = banner?.bullets?.length ? banner.bullets : [];
         let image = banner?.image || "";
 
         if (!image) {
@@ -109,7 +116,7 @@ export default function HeroCarousel() {
           }
         }
         used.add(image);
-        results.push({ id: i, label: def.label, category: def.category, eyebrow, headline, href, image });
+        results.push({ id: i, label: def.label, category: def.category, eyebrow, headline, href, image, bullets });
       }
       setSlides(results);
       setLoading(false);
@@ -128,6 +135,24 @@ export default function HeroCarousel() {
     return () => clearInterval(t);
   }, [paused, loading, next]);
 
+  // Touch swipe — mirrors the mouse-hover pause so a mid-swipe touch doesn't
+  // fight the autoplay timer, then reads the horizontal drag distance on
+  // release to decide whether it was a deliberate slide change.
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    setPaused(true);
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    const startX = touchStartX.current;
+    touchStartX.current = null;
+    setPaused(false);
+    if (startX === null) return;
+    const delta = e.changedTouches[0].clientX - startX;
+    if (Math.abs(delta) < SWIPE_THRESHOLD_PX) return;
+    if (delta < 0) next();
+    else prev();
+  }
+
   if (loading) {
     return (
       <div className="hero-carousel hero-carousel--loading">
@@ -143,6 +168,8 @@ export default function HeroCarousel() {
       className="hero-carousel"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
       {/* Full-bleed slide images */}
       {slides.map((s, i) => (
@@ -158,7 +185,7 @@ export default function HeroCarousel() {
         </div>
       ))}
 
-      {/* Dark overlay for text legibility */}
+      {/* Soft light overlay for text legibility over any photo */}
       <div className="hc-overlay" />
 
       {/* Text content, overlaid on the image */}
@@ -166,8 +193,15 @@ export default function HeroCarousel() {
         <div className="hc-content-inner">
           <p className="eyebrow">{slide.eyebrow}</p>
           <h1 className="hc-headline">{slide.headline}</h1>
-          <Link href={slide.href} className="btn btn-primary btn-lg hc-shop-btn">
-            Shop Now
+          {slide.bullets.length > 0 && (
+            <ul className="hc-bullets">
+              {slide.bullets.map((b, i) => (
+                <li key={i}>{b}</li>
+              ))}
+            </ul>
+          )}
+          <Link href={slide.href} className="hc-shop-btn">
+            Shop Now <ArrowIcon />
           </Link>
         </div>
       </div>
@@ -186,7 +220,7 @@ export default function HeroCarousel() {
         </svg>
       </button>
 
-      {/* Bottom-center dots */}
+      {/* Dots — vertical on the right on desktop, bottom-center on mobile */}
       <div className="hc-dots">
         {slides.map((_, i) => (
           <button
