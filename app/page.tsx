@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import HeroCarousel from "@/components/HeroCarousel";
 import DiscoverCollection from "@/components/DiscoverCollection";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import BestSellers from "@/components/BestSellers";
 import Reviews from "@/components/Reviews";
+import { DiscoverSkeleton, CategoryShowcaseSkeleton, BestSellersSkeleton } from "@/components/Skeletons";
 
 // The homepage's product sections now fetch straight from WooCommerce at
 // render time (for SEO — see BestSellers/DiscoverCollection/CategoryShowcase),
@@ -19,10 +21,14 @@ export default function Home() {
       <HeroCarousel />
 
       {/* DISCOVER COLLECTION */}
-      <DiscoverCollection />
+      <Suspense fallback={<DiscoverSkeleton />}>
+        <DiscoverCollection />
+      </Suspense>
 
       {/* CATEGORY SHOWCASE */}
-      <CategoryShowcase />
+      <Suspense fallback={<CategoryShowcaseSkeleton />}>
+        <CategoryShowcase />
+      </Suspense>
 
       {/* MARQUEE STRIP */}
       <div className="strip">
@@ -38,7 +44,9 @@ export default function Home() {
       </div>
 
       {/* BEST SELLERS */}
-      <BestSellers />
+      <Suspense fallback={<BestSellersSkeleton />}>
+        <BestSellers />
+      </Suspense>
 
       {/* REVIEWS */}
       <Reviews />

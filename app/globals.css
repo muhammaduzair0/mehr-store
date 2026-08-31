@@ -2816,6 +2816,23 @@ textarea {
   100% { background-position: -200% 0; }
 }
 
+/* Generic shimmering loading block — components/Skeletons.tsx composes these
+   inside each section's own real layout classes (.card, .bs-grid, .pdp, …)
+   so a skeleton is already the right size/shape and nothing shifts once
+   real content replaces it. */
+.skel {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skel-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
 /* Full-bleed slide images. object-fit: cover fills the box edge-to-edge
    (cropping rather than letterboxing). On mobile this switches to contain
    (see media query below) — the hero is narrower there, so cover crops too
@@ -3164,11 +3181,6 @@ textarea {
   color: var(--ink);
 }
 
-.dcv-slide--skeleton {
-  height: 420px;
-  background: linear-gradient(180deg, oklch(0.94 0.006 258) 0%, oklch(0.88 0.008 258) 100%);
-}
-
 /* Arrows — dark circular buttons overlapping the neighbor slides */
 .dcv-arrow {
   position: absolute;
@@ -3274,12 +3286,6 @@ textarea {
      it stays legible over whatever's directly behind it. */
   background: var(--surface);
   border-radius: 10px;
-}
-
-.cat-tile-lg--skeleton {
-  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
 }
 
 .cat-tile-lg img {
@@ -3519,12 +3525,6 @@ textarea {
 .bs-tile-info .bs-price {
   margin-top: 4px;
   font-size: 13px;
-}
-
-.bs-skeleton {
-  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
 }
 
 @media (max-width: 900px) {

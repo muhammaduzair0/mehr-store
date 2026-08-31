@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { WCProduct } from "@/lib/types";
 import ProductGrid from "@/components/ProductGrid";
 import { SearchIcon } from "@/components/icons";
+import { ProductGridSkeleton } from "@/components/Skeletons";
 
 export default function SearchClient() {
   const params = useSearchParams();
@@ -76,9 +77,7 @@ export default function SearchClient() {
 
       <div className="wrap" style={{ paddingBlock: "clamp(36px, 4.5vw, 60px) clamp(64px, 8vw, 108px)" }}>
         {loading ? (
-          <div style={{ padding: "60px 0", textAlign: "center" }}>
-            <p className="muted">Searching…</p>
-          </div>
+          <ProductGridSkeleton count={8} />
         ) : !searched ? (
           <div className="no-results">
             <p className="h-md" style={{ fontWeight: 300 }}>Search for a scent, note, or product name.</p>
