@@ -3249,16 +3249,15 @@ textarea {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  /* Unconstrained, each tile grew to ~half the full page width — at 1:1
-     that's a huge tile, and two stacked rows of them sprawled well past
-     one screen's height, so seeing the whole section took several separate
-     scrolls. Capped so the section stays compact on wide screens.
-     .cat-showcase is flex-direction: column, so margin-inline: auto alone
-     drops this row's default cross-axis stretch — width: 100% restores a
-     definite width for the 1fr tracks (and this row) to resolve against,
-     with max-width still capping it. */
+  /* Matches --maxw (1320px), the same content width every other section on
+     the site uses — was capped much narrower at 900px before, which left
+     large empty margins either side instead of just the section's own
+     padding. .cat-showcase is flex-direction: column, so margin-inline:
+     auto alone drops this row's default cross-axis stretch — width: 100%
+     restores a definite width for the 1fr tracks (and this row) to resolve
+     against, with max-width still capping it. */
   width: 100%;
-  max-width: 900px;
+  max-width: var(--maxw);
   margin-inline: auto;
 }
 
