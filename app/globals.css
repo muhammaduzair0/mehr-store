@@ -3144,13 +3144,17 @@ textarea {
   text-align: center;
 }
 
-.dcv-from {
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+.dcv-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   margin-top: 8px;
+}
+
+.dcv-price-orig {
+  font-size: 12.5px;
+  color: var(--muted);
+  text-decoration: line-through;
 }
 
 .dcv-price {
@@ -3158,7 +3162,6 @@ textarea {
   font-size: 15px;
   font-weight: 700;
   color: var(--ink);
-  margin-top: 6px;
 }
 
 .dcv-slide--skeleton {
@@ -3262,15 +3265,14 @@ textarea {
 .cat-tile-lg {
   position: relative;
   display: block;
-  /* 4/5 made this taller than most screens' viewport, so object-fit: contain
-     — which fills the box edge to edge with no top buffer — put the bottle's
-     cap right at the tile's top edge, where the sticky header would eat into
+  /* 4/5 made this taller than most screens' viewport, put the bottle's cap
+     right at the tile's top edge, where the sticky header would eat into
      it while scrolling. */
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  /* object-fit: contain (set in CategoryShowcase.tsx) letterboxes rather
-     than cropping the bottle out of frame. Light, matching the rest of the
-     site's product tiles — the "FOR HER" badge has its own opaque pill. */
+  /* object-fit: cover (set in CategoryShowcase.tsx) fills the tile edge to
+     edge, full-bleed — the "Womens"/"Mens" badge has its own opaque pill so
+     it stays legible over whatever's directly behind it. */
   background: var(--surface);
   border-radius: 10px;
 }

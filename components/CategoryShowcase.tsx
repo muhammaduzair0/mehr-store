@@ -21,12 +21,12 @@ interface CategoryShowcaseProps {
 
 const DEFAULT_ROWS: [ShowcaseTileConfig, ShowcaseTileConfig][] = [
   [
-    { category: "for-her", href: "/shop?category=for-her", label: "For Her" },
-    { category: "for-him", href: "/shop?category=for-him", label: "For Him" },
+    { category: "for-her", href: "/shop?category=for-her", label: "Womens" },
+    { category: "for-him", href: "/shop?category=for-him", label: "Mens" },
   ],
   [
     { category: "unisex", href: "/shop?category=unisex", label: "Unisex" },
-    { category: "featured", href: "/shop?featured=true", label: "Featured" },
+    { category: "featured", href: "/shop?featured=true", label: "Best Sellers" },
   ],
 ];
 
@@ -93,7 +93,7 @@ export default async function CategoryShowcase({ rows = DEFAULT_ROWS }: Category
         <div className="cat-row" key={i}>
           {row.map((tile, j) => (
             <Link key={j} href={tile.href} className="cat-tile-lg">
-              <Image src={tile.image} alt={tile.label} fill style={{ objectFit: "contain" }} unoptimized />
+              <Image src={tile.image} alt={tile.label} fill style={{ objectFit: "cover" }} unoptimized />
               <span className="cat-tile-lg-badge">{tile.label}</span>
             </Link>
           ))}

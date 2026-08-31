@@ -168,8 +168,12 @@ export default function DiscoverCollectionCarousel({ heading, products }: Discov
                   </div>
 
                   <p className="dcv-name">{p.name}</p>
-                  <p className="dcv-from">Starting from</p>
-                  <p className="dcv-price">{priceNum !== null ? money(priceNum) : "—"}</p>
+                  <div className="dcv-price-row">
+                    {p.on_sale && p.regular_price && (
+                      <span className="dcv-price-orig">{money(p.regular_price)}</span>
+                    )}
+                    <span className="dcv-price">{priceNum !== null ? money(priceNum) : "—"}</span>
+                  </div>
                 </Link>
               </div>
             );
