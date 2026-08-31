@@ -174,6 +174,19 @@ export default function HeroCarousel() {
       {/* Full-bleed slide images */}
       {slides.map((s, i) => (
         <div key={s.id} className={"hc-image" + (i === current ? " active" : "")}>
+          {/* Blurred, scaled-up backdrop fills the frame edge-to-edge behind the
+              contain-fit photo below — on a very wide viewport, a portrait-ish
+              source photo letterboxed with flat gray bars either side looked
+              like dead space; this fills those bars with the photo itself
+              instead, the way video players letterbox. */}
+          <Image
+            src={s.image}
+            alt=""
+            fill
+            aria-hidden="true"
+            className="hc-slide-bg"
+            unoptimized
+          />
           <Image
             src={s.image}
             alt={s.label}

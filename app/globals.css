@@ -2837,7 +2837,14 @@ textarea {
    of the composition. The light .hc-image background above fills any
    letterbox bars. Generate future hero photos in a wide/landscape aspect
    ratio so they fill this box with less letterboxing in the first place. */
-.hc-slide-img { object-fit: contain; object-position: center; }
+.hc-slide-img { object-fit: contain; object-position: center; z-index: 1; }
+
+.hc-slide-bg {
+  object-fit: cover;
+  object-position: center;
+  filter: blur(50px) saturate(1.05);
+  transform: scale(1.2); /* hides the blur's own soft edge from showing at the box boundary */
+}
 
 /* Soft light gradient — the redesign assumes light, airy product photography
    (fabric-draped pedestals, natural light), so this is a safety net for
@@ -2982,16 +2989,17 @@ textarea {
 .hc-arrow--prev { left: 24px; }
 .hc-arrow--next { right: 24px; }
 
-/* Dots — vertical, right edge, like the reference. Cleared of the 48px-wide
-   .hc-arrow--next (right: 24px, so it spans out to 72px) with a real gap,
-   not stacked at nearly the same offset. Switches to horizontal
+/* Dots — stacked directly below the next-arrow, sharing its horizontal
+   center (arrow is 48px wide at right:24px, so its center sits 48px in from
+   the edge — right:43px centers this ~11px-wide dot column on that same
+   point), with a real gap below the arrow's bottom edge rather than
+   floating beside it at nearly the same position. Switches to horizontal
    bottom-center on mobile in the media query below, since a tall vertical
    stack doesn't fit a short mobile hero as comfortably. */
 .hc-dots {
   position: absolute;
-  right: 92px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 43px;
+  top: calc(50% + 42px);
   z-index: 4;
   display: flex;
   flex-direction: column;
