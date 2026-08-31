@@ -3114,99 +3114,59 @@ textarea {
 
 .dcv-slide {
   flex: 0 0 auto;
-  width: clamp(240px, 21vw, 280px);
+  width: clamp(200px, 18vw, 260px);
 }
 
-/* Off-center slides — flattened, dimmed, greyed out */
+/* Flat, equal-size tiles — no scale-up/dim distinction between the centered
+   and off-center slides, matching the reference's plain grid-like look. */
 .dcv-card {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-radius: 14px;
-  padding: clamp(18px, 2vw, 24px) 18px 22px;
-  background: oklch(0.93 0.006 258 / 0.8);
-  filter: grayscale(0.5) brightness(0.98);
-  transform: scale(0.88);
-  transition: all 0.55s var(--ease);
-}
-
-/* Active (centered) slide — pops forward in white, full size */
-.dcv-slide.active {
-  z-index: 2;
-}
-
-.dcv-slide.active .dcv-card {
-  width: clamp(300px, 26vw, 360px);
-  background: #fff;
-  filter: none;
-  transform: scale(1.08);
-  box-shadow: 0 24px 55px oklch(0.3 0.02 258 / 0.16);
-}
-
-.dcv-price {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: 13px;
-  font-weight: 700;
-  color: oklch(0.16 0.02 258);
-  background: #fff;
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-.dcv-slide:not(.active) .dcv-price {
-  background: transparent;
-  color: oklch(0.42 0.01 250);
-}
-.dcv-discount {
-  margin-left: 6px;
-  color: oklch(0.5 0.16 25);
-}
-.dcv-slide:not(.active) .dcv-discount {
-  color: inherit;
-  opacity: 0.8;
 }
 
 .dcv-media {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1.05;
-  margin: 30px 0 18px;
+  background: var(--surface-2);
+  margin-bottom: 20px;
 }
 
 .dcv-name {
+  font-family: var(--font-display);
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink);
   text-align: center;
-  margin-bottom: 18px;
 }
 
-.dcv-slide:not(.active) .dcv-name {
-  color: oklch(0.45 0.01 258);
+.dcv-from {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 8px;
 }
 
-.dcv-shop-btn {
-  padding: 11px 26px;
-  font-size: 10px;
-}
-
-.dcv-slide:not(.active) .dcv-shop-btn {
-  border-color: oklch(0.6 0.01 250);
-  color: oklch(0.4 0.01 258);
+.dcv-price {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 6px;
 }
 
 .dcv-slide--skeleton {
   height: 420px;
-  border-radius: 14px;
   background: linear-gradient(180deg, oklch(0.94 0.006 258) 0%, oklch(0.88 0.008 258) 100%);
 }
 
-/* Arrows — dark circular buttons overlapping the dimmed neighbor slides */
+/* Arrows — dark circular buttons overlapping the neighbor slides */
 .dcv-arrow {
   position: absolute;
   top: 50%;
@@ -3236,20 +3196,22 @@ textarea {
   right: clamp(8px, 4vw, 40px);
 }
 
-/* Pagination dots */
+/* Pagination — a wide pill for the active dot, small thin bars otherwise,
+   matching the reference's progress-bar-style indicator rather than plain
+   round dots. */
 .dcv-dots {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   margin-top: clamp(28px, 3.5vw, 44px);
 }
 
 .dcv-dot {
   width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: oklch(0.4 0.01 258);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
   border: none;
   padding: 0;
   cursor: pointer;
@@ -3257,17 +3219,13 @@ textarea {
 }
 
 .dcv-dot.active {
-  width: 10px;
-  height: 10px;
+  width: 24px;
   background: var(--ink);
 }
 
 @media (max-width: 720px) {
   .dcv-slide {
     width: 60vw;
-  }
-  .dcv-slide.active .dcv-card {
-    width: 74vw;
   }
   .dcv-arrow {
     width: 40px;

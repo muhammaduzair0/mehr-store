@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { discountPercent, money } from "@/lib/format";
+import { money } from "@/lib/format";
 import type { WCProduct } from "@/lib/types";
 
 interface DiscoverCollectionCarouselProps {
@@ -149,7 +149,6 @@ export default function DiscoverCollectionCarousel({ heading, products }: Discov
         >
           {loopProducts.map((p, i) => {
             const priceNum = resolvePrice(p);
-            const pct = p.on_sale ? discountPercent(p.regular_price, p.sale_price) : null;
             const isActive = i === pos;
             return (
               <div
@@ -158,11 +157,6 @@ export default function DiscoverCollectionCarousel({ heading, products }: Discov
                 className={"dcv-slide" + (isActive ? " active" : "")}
               >
                 <Link href={`/product/${p.slug}`} className="dcv-card">
-                  <span className="dcv-price">
-                    {priceNum !== null ? money(priceNum) : "—"}
-                    {pct && <span className="dcv-discount">−{pct}%</span>}
-                  </span>
-
                   <div className="dcv-media">
                     <Image
                       src={p.images?.[0]?.src || "/whisper-campaign.png"}
@@ -174,7 +168,8 @@ export default function DiscoverCollectionCarousel({ heading, products }: Discov
                   </div>
 
                   <p className="dcv-name">{p.name}</p>
-                  <span className="btn btn-outline dcv-shop-btn">Shop Now</span>
+                  <p className="dcv-from">Starting from</p>
+                  <p className="dcv-price">{priceNum !== null ? money(priceNum) : "—"}</p>
                 </Link>
               </div>
             );
