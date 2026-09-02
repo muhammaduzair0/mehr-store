@@ -139,7 +139,8 @@ export default function CartPage() {
 async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
   e.preventDefault();
   const form = e.currentTarget;
-  const email     = (form.elements.namedItem("email") as HTMLInputElement)?.value || "";
+  const email        = (form.elements.namedItem("email") as HTMLInputElement)?.value || "";
+  const emailConfirm = (form.elements.namedItem("emailConfirm") as HTMLInputElement)?.value || "";
   const phone     = (form.elements.namedItem("phone") as HTMLInputElement)?.value || "";
   const fn        = (form.elements.namedItem("fn")    as HTMLInputElement)?.value || "";
   const ln        = (form.elements.namedItem("ln")    as HTMLInputElement)?.value || "";
@@ -149,6 +150,16 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
   // We only ship within Pakistan (see Shipping & Returns) — WooCommerce needs
   // the ISO 3166-1 alpha-2 code, not the display name, for zones/tax/couriers.
   const country   = "PK";
+
+  // A typo'd email fails silently — the order still goes through, and the
+  // only sign anything's wrong is a bounce notice that shows up later (if
+  // it shows up at all) instead of a blocked checkout. Catching a mismatch
+  // here, before the order is placed, is the only point we can actually
+  // still ask the customer to double check it.
+  if (email.trim().toLowerCase() !== emailConfirm.trim().toLowerCase()) {
+    setOrderError("Your email addresses don't match — please check and try again.");
+    return;
+  }
 
   setPlacing(true);
   setOrderError(null);
@@ -345,6 +356,18 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
                 <div className="field">
                   <input type="email" required placeholder=" " id="email" name="email" defaultValue={user?.email || ""} />
                   <label htmlFor="email">Email address</label>
+                </div>
+                <div className="field">
+                  <input
+                    type="email"
+                    required
+                    placeholder=" "
+                    id="emailConfirm"
+                    name="emailConfirm"
+                    defaultValue={user?.email || ""}
+                    onPaste={(e) => e.preventDefault()}
+                  />
+                  <label htmlFor="emailConfirm">Confirm email address</label>
                 </div>
                 <div className="field">
                   <input type="tel" required placeholder=" " id="phone" name="phone" />

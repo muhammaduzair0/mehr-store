@@ -29,8 +29,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  let body: any
   try {
-    const body = await req.json()
+    body = await req.json()
 
     if (!Array.isArray(body?.line_items) || body.line_items.length === 0) {
       return NextResponse.json({ error: 'line_items is required' }, { status: 400 })
@@ -50,6 +51,20 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(order)
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    // axios's own error.message is a generic "Request failed with status
+    // code 400" — the actual reason WooCommerce rejected the order (invalid
+    // coupon, out-of-stock item, bad variation_id, etc.) lives in the
+    // response body instead. Without reading that, an order failure was
+    // completely undiagnosable after the fact — nothing here or in the
+    // Coolify logs ever recorded why.
+    const wcMessage = error.response?.data?.message
+    console.error('Order creation failed:', {
+      wcMessage,
+      wcCode: error.response?.data?.code,
+      status: error.response?.status,
+      line_items: body?.line_items,
+      coupon_lines: body?.coupon_lines,
+    })
+    return NextResponse.json({ error: wcMessage || error.message }, { status: 500 })
   }
 }
