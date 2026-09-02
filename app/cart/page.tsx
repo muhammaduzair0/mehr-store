@@ -161,6 +161,17 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
     return;
   }
 
+  // Mirrors the server-side check in app/api/orders/route.ts — this one's
+  // just for instant feedback without a round trip; the API route is what
+  // actually enforces it, since a client check alone can't be trusted (an
+  // out-of-stock line item or unverified email can't be caught here at all,
+  // for instance — those only surface once WooCommerce itself rejects it).
+  const phoneDigits = phone.replace(/[\s\-()]/g, "");
+  if (!/^(\+?92|0)3\d{9}$/.test(phoneDigits)) {
+    setOrderError("Please enter a valid Pakistani mobile number, e.g. 03001234567.");
+    return;
+  }
+
   setPlacing(true);
   setOrderError(null);
 
@@ -370,11 +381,19 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
                   <label htmlFor="emailConfirm">Confirm email address</label>
                 </div>
                 <div className="field">
-                  <input type="tel" required placeholder=" " id="phone" name="phone" />
+                  <input
+                    type="tel"
+                    required
+                    placeholder=" "
+                    id="phone"
+                    name="phone"
+                    pattern="(\+?92|0)3[0-9]{9}"
+                    title="Enter a valid Pakistani mobile number, e.g. 03001234567"
+                  />
                   <label htmlFor="phone">Phone number</label>
                 </div>
                 <p className="ship-note" style={{ marginTop: -6 }}>
-                  Our delivery rider will call this number to confirm your Cash on Delivery order.
+                  Our delivery rider will call this number to confirm your Cash on Delivery order — e.g. 03001234567.
                 </p>
               </fieldset>
               <fieldset>

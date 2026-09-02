@@ -5,6 +5,12 @@ import { orderConfirmationEmail } from '@/lib/emails'
 import { getSession } from '@/lib/auth-session'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// Pakistani mobile numbers only — this store ships within Pakistan (see
+// billing.country handling below) and the delivery rider calls this number
+// directly, so it has to actually be dialable. Accepts local (03XXXXXXXXX)
+// or country-code (+923XXXXXXXX / 923XXXXXXXX) format, tolerant of spaces
+// and dashes a customer might type.
+const PHONE_RE = /^(\+?92|0)3\d{9}$/
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
     if (!body?.billing?.email || !EMAIL_RE.test(body.billing.email)) {
       return NextResponse.json({ error: 'A valid billing email is required' }, { status: 400 })
     }
+    const phoneDigits = String(body?.billing?.phone || '').replace(/[\s\-()]/g, '')
+    if (!PHONE_RE.test(phoneDigits)) {
+      return NextResponse.json({ error: 'A valid Pakistani mobile number is required' }, { status: 400 })
+    }
+    body.billing.phone = phoneDigits
 
     const order = await wc.createOrder(body)
 
