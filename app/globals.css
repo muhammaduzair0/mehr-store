@@ -2849,43 +2849,18 @@ textarea {
 
 .hc-image.active { opacity: 1; z-index: 1; }
 
-/* contain, not cover — these are full staged scenes (candle, props, bottle
-   spread across the whole frame), so cropping to fill the box cuts off most
-   of the composition. The light .hc-image background above fills any
-   letterbox bars. Generate future hero photos in a wide/landscape aspect
-   ratio so they fill this box with less letterboxing in the first place. */
-.hc-slide-img { object-fit: contain; object-position: center; z-index: 1; }
+/* cover — your hero photos are now wide, landscape-composed group shots
+   (bottles arranged across the frame specifically for this), so the box
+   fills edge-to-edge with the real photo. No blurred backdrop layer
+   anymore: that was only there to fill letterbox gaps behind a narrower
+   portrait photo, and just read as haze on a photo that no longer needs
+   it. If a future hero photo is portrait/narrow again, cover will crop its
+   sides — switch this back to contain for that image if so. */
+.hc-slide-img { object-fit: cover; object-position: center; z-index: 1; }
 
-.hc-slide-bg {
-  object-fit: cover;
-  object-position: center;
-  filter: blur(50px) saturate(1.05);
-  transform: scale(1.2); /* hides the blur's own soft edge from showing at the box boundary */
-}
-
-/* Soft light gradient — the redesign assumes light, airy product photography
-   (fabric-draped pedestals, natural light), so this is a safety net for
-   contrast rather than the primary legibility mechanism .hc-overlay used to
-   be. Lightens toward the text side, and adds a light scrim at the very
-   bottom so the dots stay readable regardless of what's directly behind them. */
-.hc-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.35) 45%,
-      rgba(255, 255, 255, 0.72) 100%
-    ),
-    linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.55) 0%,
-      rgba(255, 255, 255, 0) 18%
-    );
-  pointer-events: none;
-}
+/* No page-wide dark/light overlay here — legibility for the text comes from
+   .hc-content-inner's own frosted panel background instead, so the rest of
+   the photo stays clear rather than washed out. */
 
 /* Text content — left-aligned over the image, constrained so it never crosses into the product */
 .hc-content {
