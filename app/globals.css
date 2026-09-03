@@ -2849,14 +2849,13 @@ textarea {
 
 .hc-image.active { opacity: 1; z-index: 1; }
 
-/* cover — your hero photos are now wide, landscape-composed group shots
-   (bottles arranged across the frame specifically for this), so the box
-   fills edge-to-edge with the real photo. No blurred backdrop layer
-   anymore: that was only there to fill letterbox gaps behind a narrower
-   portrait photo, and just read as haze on a photo that no longer needs
-   it. If a future hero photo is portrait/narrow again, cover will crop its
-   sides — switch this back to contain for that image if so. */
-.hc-slide-img { object-fit: cover; object-position: center; z-index: 1; }
+/* contain — cover was cropping the full composition (bottles arranged with
+   intentional spacing) too tight, cutting pieces out of frame at typical
+   hero widths. contain always shows the whole photo uncropped, at the cost
+   of a plain light margin either side on viewports wider than the photo's
+   own aspect ratio (visible on very wide screens) — .hc-image's background
+   fills that margin. */
+.hc-slide-img { object-fit: contain; object-position: center; z-index: 1; }
 
 /* No page-wide dark/light overlay here — legibility for the text comes from
    .hc-content-inner's own frosted panel background instead, so the rest of
