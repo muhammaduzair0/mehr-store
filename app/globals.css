@@ -2849,13 +2849,14 @@ textarea {
 
 .hc-image.active { opacity: 1; z-index: 1; }
 
-/* contain — cover was cropping the full composition (bottles arranged with
-   intentional spacing) too tight, cutting pieces out of frame at typical
-   hero widths. contain always shows the whole photo uncropped, at the cost
-   of a plain light margin either side on viewports wider than the photo's
-   own aspect ratio (visible on very wide screens) — .hc-image's background
-   fills that margin. */
-.hc-slide-img { object-fit: contain; object-position: center; z-index: 1; }
+/* cover — hero photos are now shot/generated to this section's actual wide
+   aspect ratio (subject centered with generous background padding around
+   it), so cover fills the box edge-to-edge with only a negligible crop,
+   instead of the thin light margins contain left on wide viewports when
+   the photo's ratio didn't quite match the box's. If a future photo isn't
+   landscape-ratio'd for this section, switch this back to contain rather
+   than letting cover zoom into it. */
+.hc-slide-img { object-fit: cover; object-position: center; z-index: 1; }
 
 /* No page-wide dark/light overlay here — legibility for the text comes from
    .hc-content-inner's own frosted panel background instead, so the rest of
