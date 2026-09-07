@@ -2876,11 +2876,6 @@ textarea {
   z-index: 3;
   display: flex;
   justify-content: flex-end;
-  /* Without this, .hc-content-inner (a flex item with no height of its own)
-     defaults to stretch and grows to this box's full height — its frosted
-     background then covers almost the entire hero instead of just wrapping
-     the text, which is what was showing as a big white block on mobile. */
-  align-items: center;
   padding: 0 clamp(24px, 8vw, 100px);
 }
 
@@ -3038,6 +3033,12 @@ textarea {
 
   .hc-content {
     justify-content: center;
+    /* Desktop leaves this as flex's default stretch (unchanged, on purpose)
+       so .hc-content-inner keeps its established full-height look there.
+       Mobile centers it instead — full width + full height + blur read as
+       a solid block covering the photo on a short, narrow mobile viewport
+       in a way it doesn't on a wide desktop one. */
+    align-items: center;
     padding: 0 24px 56px;
   }
 
