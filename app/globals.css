@@ -3032,42 +3032,36 @@ textarea {
   }
 
   .hc-content {
-    justify-content: center;
-    /* Desktop leaves this as flex's default stretch (unchanged, on purpose)
-       so .hc-content-inner keeps its established full-height look there.
-       Mobile anchors the panel toward the bottom instead — sits over the
-       darker background area below the product rather than covering the
-       bottle's own label/cap, and keeps it off full-height stretch (which
-       read as a solid block covering the photo on a short, narrow
-       viewport in a way it doesn't on a wide desktop one). */
-    align-items: flex-end;
-    padding: 0 24px 56px;
+    /* Side-by-side, same as desktop — image stays fully visible on the left,
+       text sits in its own narrow column on the right, rather than a
+       centered card overlaid on top of the product (which either covered
+       the bottle or, pushed to the edges, still cut into it on a narrow
+       viewport with nowhere clear to sit). */
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 16px;
   }
 
   .hc-content-inner {
-    /* Capped rather than 100% — a full-bleed-width frosted panel still reads
-       as a big block covering the photo even at a reasonable height; a
-       compact centered card lets the image show clearly around it. */
-    width: min(100%, 420px);
-    align-items: center;
-    justify-content: flex-end;
-    text-align: center;
-  }
-
-  .hc-bullets {
-    align-items: center;
-  }
-
-  .hc-bullets li {
-    padding-left: 0;
-  }
-
-  .hc-bullets li::before {
-    display: none;
+    width: 46%;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+    padding: 14px;
   }
 
   .hc-headline {
-    font-size: clamp(1.9rem, 8vw, 2.75rem);
+    font-size: clamp(1rem, 5.2vw, 1.5rem);
+    margin-bottom: 14px;
+  }
+
+  .hc-bullets {
+    margin-bottom: 18px;
+  }
+
+  .hc-shop-btn {
+    padding: 10px 16px;
+    font-size: 10px;
   }
 
   .hc-arrow {
