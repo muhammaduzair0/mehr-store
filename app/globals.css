@@ -3035,10 +3035,12 @@ textarea {
     justify-content: center;
     /* Desktop leaves this as flex's default stretch (unchanged, on purpose)
        so .hc-content-inner keeps its established full-height look there.
-       Mobile centers it instead — full width + full height + blur read as
-       a solid block covering the photo on a short, narrow mobile viewport
-       in a way it doesn't on a wide desktop one. */
-    align-items: center;
+       Mobile anchors the panel toward the bottom instead — sits over the
+       darker background area below the product rather than covering the
+       bottle's own label/cap, and keeps it off full-height stretch (which
+       read as a solid block covering the photo on a short, narrow
+       viewport in a way it doesn't on a wide desktop one). */
+    align-items: flex-end;
     padding: 0 24px 56px;
   }
 
