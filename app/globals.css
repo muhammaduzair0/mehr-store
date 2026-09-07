@@ -3036,10 +3036,12 @@ textarea {
        text sits in its own narrow column on the right, rather than a
        centered card overlaid on top of the product (which either covered
        the bottle or, pushed to the edges, still cut into it on a narrow
-       viewport with nowhere clear to sit). */
+       viewport with nowhere clear to sit). Anchored to the bottom rather
+       than vertically centered, so it sits low against the product bases
+       instead of over the label/cap area higher up. */
     justify-content: flex-end;
-    align-items: center;
-    padding: 0 16px;
+    align-items: flex-end;
+    padding: 0 16px 64px;
   }
 
   .hc-content-inner {
