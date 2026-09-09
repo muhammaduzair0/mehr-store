@@ -419,27 +419,9 @@ export default function ProductClient({ product, related, initialReviews, initia
                 </p>
               </AccordionItem>
 
-              {(notesImage || noteTiers.length > 0 || notes.length > 0) && (
+              {!notesImage && (noteTiers.length > 0 || notes.length > 0) && (
                 <AccordionItem title="Scent notes">
-                  {notesImage ? (
-                    <div className="notes-image-block">
-                      <p className="notes-image-label">
-                        <span />
-                        Olfactory Notes
-                        <span />
-                      </p>
-                      <div className="notes-image-wrap">
-                        <Image
-                          src={notesImage}
-                          alt={`${product.name} — top, heart, and base notes`}
-                          width={1200}
-                          height={630}
-                          style={{ width: "100%", height: "auto" }}
-                          unoptimized
-                        />
-                      </div>
-                    </div>
-                  ) : noteTiers.length > 0 ? (
+                  {noteTiers.length > 0 ? (
                     <ul className="note-pyramid">
                       {noteTiers.map((t) => (
                         <li key={t.key}>
@@ -456,6 +438,26 @@ export default function ProductClient({ product, related, initialReviews, initia
             </div>
           </div>
         </div>
+
+        {notesImage && (
+          <div className="notes-image-block">
+            <p className="notes-image-label">
+              <span />
+              Olfactory Notes
+              <span />
+            </p>
+            <div className="notes-image-wrap">
+              <Image
+                src={notesImage}
+                alt={`${product.name} — top, heart, and base notes`}
+                width={1600}
+                height={840}
+                style={{ width: "100%", height: "auto" }}
+                unoptimized
+              />
+            </div>
+          </div>
+        )}
 
         <section className="section-sm reviews-section">
           <div className="sec-head reveal-up">

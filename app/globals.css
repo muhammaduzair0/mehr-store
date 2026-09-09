@@ -1828,7 +1828,7 @@ textarea {
   width: 52px;
 }
 .notes-image-block {
-  padding-block: 8px;
+  padding-block: 48px 8px;
 }
 .notes-image-label {
   display: flex;
@@ -1848,8 +1848,7 @@ textarea {
   background: var(--line);
 }
 .notes-image-wrap {
-  max-width: 480px;
-  margin-inline: auto;
+  width: 100%;
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 16px 40px oklch(0.2 0.02 258 / 0.1);
