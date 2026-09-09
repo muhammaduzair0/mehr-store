@@ -188,6 +188,7 @@ export default function ProductClient({ product, related, initialReviews, initia
     ...t,
     options: product.attributes?.find((a) => a.name === t.key)?.options || [],
   })).filter((t) => t.options.length > 0);
+  const notesImage  = product.meta_data?.find((m) => m.key === "_mehr_notes_image")?.value || "";
   const family      = product.attributes?.find((a) => a.name === "Scent Family")?.options?.[0] || "";
   const categories  = product.categories?.filter((c) => c.slug !== "uncategorized") || [];
   const rating      = parseFloat(product.average_rating || "0");
@@ -410,9 +411,35 @@ export default function ProductClient({ product, related, initialReviews, initia
                 </AccordionItem>
               )}
 
-              {(noteTiers.length > 0 || notes.length > 0) && (
+              <AccordionItem title="Shipping &amp; returns">
+                <p>
+                  Orders ship within 1–2 business days and arrive in 3–5 business days nationwide.
+                  Shipping is {money(SHIP_COST)} on orders under {money(FREE_SHIP)}, and free on orders over{" "}
+                  {money(FREE_SHIP)}. Cash on Delivery is available at checkout.
+                </p>
+              </AccordionItem>
+
+              {(notesImage || noteTiers.length > 0 || notes.length > 0) && (
                 <AccordionItem title="Scent notes">
-                  {noteTiers.length > 0 ? (
+                  {notesImage ? (
+                    <div className="notes-image-block">
+                      <p className="notes-image-label">
+                        <span />
+                        Olfactory Notes
+                        <span />
+                      </p>
+                      <div className="notes-image-wrap">
+                        <Image
+                          src={notesImage}
+                          alt={`${product.name} — top, heart, and base notes`}
+                          width={1200}
+                          height={630}
+                          style={{ width: "100%", height: "auto" }}
+                          unoptimized
+                        />
+                      </div>
+                    </div>
+                  ) : noteTiers.length > 0 ? (
                     <ul className="note-pyramid">
                       {noteTiers.map((t) => (
                         <li key={t.key}>
@@ -426,14 +453,6 @@ export default function ProductClient({ product, related, initialReviews, initia
                   )}
                 </AccordionItem>
               )}
-
-              <AccordionItem title="Shipping &amp; returns">
-                <p>
-                  Orders ship within 1–2 business days and arrive in 3–5 business days nationwide.
-                  Shipping is {money(SHIP_COST)} on orders under {money(FREE_SHIP)}, and free on orders over{" "}
-                  {money(FREE_SHIP)}. Cash on Delivery is available at checkout.
-                </p>
-              </AccordionItem>
             </div>
           </div>
         </div>
