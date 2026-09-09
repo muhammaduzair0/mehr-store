@@ -163,7 +163,6 @@ export default function ProductClient({ product, related, initialReviews, initia
   const [qty, setQty]           = useState(1);
   const [added, setAdded]       = useState(false);
   const [reviews, setReviews]   = useState<Review[]>(initialReviews);
-  const [showReviewForm, setShowReviewForm] = useState(false);
 
   // The same client component instance persists across a "related product"
   // navigation (only the `id` search param changes), so local UI state and
@@ -173,7 +172,6 @@ export default function ProductClient({ product, related, initialReviews, initia
     setQty(1);
     setSize(null);
     setAdded(false);
-    setShowReviewForm(false);
   }, [product.id]);
 
   useEffect(() => {
@@ -448,21 +446,15 @@ export default function ProductClient({ product, related, initialReviews, initia
                 Reviews{reviews.length > 0 ? ` (${reviews.length})` : ""}
               </h2>
             </div>
-            {!showReviewForm && (
-              <button className="ulink reveal" onClick={() => setShowReviewForm(true)}>
-                Write a review
-              </button>
-            )}
+            <span className="ulink">Write a review</span>
           </div>
 
-          {showReviewForm && (
-            <div className="review-form-wrap reveal-up">
-              <ReviewForm
-                productId={product.id}
-                onSubmitted={(r) => setReviews((prev) => [r, ...prev])}
-              />
-            </div>
-          )}
+          <div className="review-form-wrap reveal-up">
+            <ReviewForm
+              productId={product.id}
+              onSubmitted={(r) => setReviews((prev) => [r, ...prev])}
+            />
+          </div>
 
           {reviews.length > 0 ? (
             <div className="review-list reveal-up">
@@ -476,9 +468,9 @@ export default function ProductClient({ product, related, initialReviews, initia
                 </article>
               ))}
             </div>
-          ) : !showReviewForm ? (
+          ) : (
             <p className="muted">No reviews yet — be the first to share your experience.</p>
-          ) : null}
+          )}
         </section>
 
         {related.length > 0 && (
