@@ -11,12 +11,12 @@ const GUIDE = [
   {
     title: "Bold, magnetic, built on woods and spice",
     label: "For Him",
-    href: "/shop?category=for-him",
+    href: "/shop?category=men",
   },
   {
     title: "Florals softened with warmth and a little audacity",
     label: "For Her",
-    href: "/shop?category=for-her",
+    href: "/shop?category=women",
   },
   {
     title: "Not sure yet — see what everyone reaches for first",

@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const params: Record<string, string> = {}
 
     // WooCommerce's REST API filters products by category ID, not slug —
-    // resolve the slug callers pass (e.g. "for-her") to its numeric ID first.
+    // resolve the slug callers pass (e.g. "women") to its numeric ID first.
     const categorySlug = searchParams.get('category')
     if (categorySlug) {
       if (/^\d+$/.test(categorySlug)) {

@@ -21,8 +21,8 @@ interface CategoryShowcaseProps {
 
 const DEFAULT_ROWS: [ShowcaseTileConfig, ShowcaseTileConfig][] = [
   [
-    { category: "for-her", href: "/shop?category=for-her", label: "Womens" },
-    { category: "for-him", href: "/shop?category=for-him", label: "Mens" },
+    { category: "women", href: "/shop?category=women", label: "Womens" },
+    { category: "men", href: "/shop?category=men", label: "Mens" },
   ],
   [
     { category: "unisex", href: "/shop?category=unisex", label: "Unisex" },

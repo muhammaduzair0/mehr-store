@@ -45,18 +45,18 @@ const SLIDE_DEFAULTS = [
     href: "/shop?category=unisex",
   },
   {
-    category: "for-him",
+    category: "men",
     label: "For Him",
     eyebrow: "Men's Collection",
     headline: "Confidence in every note.",
-    href: "/shop?category=for-him",
+    href: "/shop?category=men",
   },
   {
-    category: "for-her",
+    category: "women",
     label: "For Her",
     eyebrow: "Women's Collection",
     headline: "Made for her quiet power.",
-    href: "/shop?category=for-her",
+    href: "/shop?category=women",
   },
 ];
 
@@ -75,7 +75,7 @@ export default function HeroCarousel() {
   // any field a slide leaves blank there falls back to SLIDE_DEFAULTS. For
   // images specifically, an unset slide falls back further to a live product
   // photo — categories often overlap (the same product can be "featured",
-  // "unisex", and "for-him" at once), so fetching only the first match per
+  // "unisex", and "men" at once), so fetching only the first match per
   // slide risks every slide showing the same photo. Pull a small pool per
   // category instead and pick one no earlier slide used.
   useEffect(() => {

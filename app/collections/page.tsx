@@ -10,16 +10,16 @@ export const metadata = { title: "Collections — Mehr" };
 // so new products/price changes show up without a full redeploy.
 export const revalidate = 300;
 
-const ORDER = ["for-her", "for-him", "unisex"];
+const ORDER = ["women", "men", "unisex"];
 
 const STATIC_CATS: Record<string, { label: string; tagline: string; blurb: string }> = {
-  "for-her": {
+  women: {
     label: "For Her",
     tagline: "Eau de Parfum",
     blurb:
       "Fragrance for women who don't dress to be noticed — they dress to be remembered. Florals softened with warm woods, musk, and a little audacity.",
   },
-  "for-him": {
+  men: {
     label: "For Him",
     tagline: "Eau de Parfum",
     blurb:

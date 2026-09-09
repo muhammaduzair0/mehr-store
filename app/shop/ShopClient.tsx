@@ -20,9 +20,9 @@ type SortKey = "featured" | "price-asc" | "price-desc" | "name";
 
 /** Editorial copy per category slug — shown on the photographic category hero. */
 const CATEGORY_COPY: Record<string, string> = {
-  "for-her":
+  "women":
     "Fragrance for women who don't dress to be noticed — they dress to be remembered. Florals softened with warm woods, musk, and a little audacity.",
-  "for-him":
+  "men":
     "Structured, magnetic, unmistakably present. Built on woods, spice, and skin-warm musk — the kind that lingers in a room after he's left it.",
   "unisex":
     "No gendered aisles here — just fragrance chosen for how it makes you feel, not who it was marketed to.",
