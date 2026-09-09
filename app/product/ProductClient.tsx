@@ -443,7 +443,7 @@ export default function ProductClient({ product, related, initialReviews, initia
           <div className="notes-image-block">
             <p className="notes-image-label">
               <span />
-              Olfactory Notes
+              Fragrance Notes
               <span />
             </p>
             <div className="notes-image-wrap">
