@@ -93,7 +93,7 @@ export default async function CategoryShowcase({ rows = DEFAULT_ROWS }: Category
         <div className="cat-row" key={i}>
           {row.map((tile, j) => (
             <Link key={j} href={tile.href} className="cat-tile-lg">
-              <Image src={tile.image} alt={tile.label} fill style={{ objectFit: "cover" }} unoptimized />
+              <Image src={tile.image} alt={tile.label} fill style={{ objectFit: "contain" }} unoptimized />
               <span className="cat-tile-lg-badge">{tile.label}</span>
             </Link>
           ))}

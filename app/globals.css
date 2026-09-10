@@ -3299,9 +3299,11 @@ textarea {
      it while scrolling. */
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  /* object-fit: cover (set in CategoryShowcase.tsx) fills the tile edge to
-     edge, full-bleed — the "Womens"/"Mens" badge has its own opaque pill so
-     it stays legible over whatever's directly behind it. */
+  /* object-fit: contain (set in CategoryShowcase.tsx) shows the whole bottle
+     uncropped — these are tall product shots, and cover was cutting most of
+     the bottle off to fill the square. The surface background fills the
+     letterboxed space and matches the product photos' own light backdrop,
+     so the seam is invisible. */
   background: var(--surface);
   border-radius: 10px;
 }
