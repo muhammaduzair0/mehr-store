@@ -3,10 +3,10 @@ import Link from "next/link";
 import { wc } from "@/lib/woocommerce";
 
 interface ShowcaseTileConfig {
-  /** WooCommerce category slug — its first product's image is used as the tile photo */
-  category: string;
+  /** Product whose image is pinned to this tile, regardless of category */
+  productSlug: string;
   href: string;
-  /** Pill text — a category name ("For Her") or a CTA ("Shop Now") */
+  /** Pill text — a category name ("Men's Collection") or a CTA ("Best Seller") */
   label: string;
 }
 
@@ -21,12 +21,12 @@ interface CategoryShowcaseProps {
 
 const DEFAULT_ROWS: [ShowcaseTileConfig, ShowcaseTileConfig][] = [
   [
-    { category: "women", href: "/shop?category=women", label: "Womens" },
-    { category: "men", href: "/shop?category=men", label: "Mens" },
+    { productSlug: "majesty", href: "/shop?featured=true", label: "Best Seller" },
+    { productSlug: "kafka", href: "/shop?category=men", label: "Men's Collection" },
   ],
   [
-    { category: "unisex", href: "/shop?category=unisex", label: "Unisex" },
-    { category: "featured", href: "/shop?featured=true", label: "Best Sellers" },
+    { productSlug: "whisper", href: "/shop?category=women", label: "Women's Collection" },
+    { productSlug: "elia", href: "/shop?category=unisex", label: "Unisex" },
   ],
 ];
 
@@ -35,46 +35,17 @@ const FALLBACK = "/whisper-campaign.png";
 async function resolveTileRows(rows: [ShowcaseTileConfig, ShowcaseTileConfig][]) {
   const flat = rows.flat();
 
-  // WooCommerce's REST API filters products by category ID, not slug —
-  // resolve every slug used by these tiles to its numeric ID up front.
-  let slugToId: Map<string, number> = new Map();
-  try {
-    const cats = await wc.getCategories();
-    slugToId = new Map((Array.isArray(cats) ? cats : []).map((c: { slug: string; id: number }) => [c.slug, c.id]));
-  } catch {
-    slugToId = new Map();
-  }
-
-  const candidateLists = await Promise.all(
+  const withImages: ShowcaseTile[] = await Promise.all(
     flat.map(async (tile) => {
       try {
-        let params: Record<string, string>;
-        if (tile.category === "featured") {
-          params = { featured: "true", per_page: "6" };
-        } else {
-          const id = slugToId.get(tile.category);
-          if (!id) return [];
-          params = { category: String(id), per_page: "6" };
-        }
-        const data = await wc.getProducts(params);
-        const images: string[] = Array.isArray(data)
-          ? data.map((p) => p?.images?.[0]?.src).filter(Boolean)
-          : [];
-        return images;
+        const product = await wc.getProductBySlug(tile.productSlug);
+        const image = product?.images?.[0]?.src || FALLBACK;
+        return { ...tile, image };
       } catch {
-        return [];
+        return { ...tile, image: FALLBACK };
       }
     })
   );
-
-  const used = new Set<string>();
-  const withImages: ShowcaseTile[] = flat.map((tile, i) => {
-    const candidates = candidateLists[i];
-    const unique = candidates.find((src) => !used.has(src));
-    const image = unique || candidates[0] || FALLBACK;
-    used.add(image);
-    return { ...tile, image };
-  });
 
   // Re-pair back into rows of two, in the original order
   const paired: [ShowcaseTile, ShowcaseTile][] = [];
