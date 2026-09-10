@@ -34,6 +34,10 @@ export const wc = {
   getCategories: () =>
     axios.get(`${BASE_URL}/products/categories`, { headers, params: { per_page: '50' } }).then(r => r.data),
 
+  getMediaByTitle: (title: string) =>
+    axios.get(`${WP_BASE_URL}/media`, { headers, params: { search: title, per_page: '10' } })
+      .then(r => (Array.isArray(r.data) ? r.data : []).find((m: { title: { rendered: string } }) => m.title?.rendered?.toLowerCase() === title.toLowerCase())),
+
   getCoupons: (params?: Record<string, string>) =>
     axios.get(`${BASE_URL}/coupons`, { headers, params }).then(r => r.data),
 

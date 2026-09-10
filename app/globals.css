@@ -3316,6 +3316,16 @@ textarea {
   transform: scale(1.045);
 }
 
+/* Tiles with a lifestyle banner (see CategoryShowcase.tsx) show it by
+   default and crossfade to the plain product bottle shot on hover. */
+.cat-tile-img {
+  transition: opacity 0.4s ease, transform 1s var(--ease);
+}
+.cat-tile-img-banner { opacity: 1; }
+.cat-tile-img-product { opacity: 0; background: var(--surface); }
+.cat-tile-lg:hover .cat-tile-img-banner { opacity: 0; }
+.cat-tile-lg:hover .cat-tile-img-product { opacity: 1; }
+
 .cat-tile-lg-badge {
   position: absolute;
   left: 20px;
