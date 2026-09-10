@@ -46,14 +46,14 @@ const SLIDE_DEFAULTS = [
   },
   {
     category: "men",
-    label: "For Him",
+    label: "Men",
     eyebrow: "Men's Collection",
     headline: "Confidence in every note.",
     href: "/shop?category=men",
   },
   {
     category: "women",
-    label: "For Her",
+    label: "Women",
     eyebrow: "Women's Collection",
     headline: "Made for her quiet power.",
     href: "/shop?category=women",

@@ -52,8 +52,8 @@ export default function Footer() {
           <div className="foot-col">
             <h4>Shop</h4>
             <ul>
-              <li><Link href="/shop?category=women">For Her</Link></li>
-              <li><Link href="/shop?category=men">For Him</Link></li>
+              <li><Link href="/shop?category=women">Women</Link></li>
+              <li><Link href="/shop?category=men">Men</Link></li>
               <li><Link href="/shop?category=unisex">Unisex</Link></li>
               <li><Link href="/shop?featured=true">Best Sellers</Link></li>
             </ul>

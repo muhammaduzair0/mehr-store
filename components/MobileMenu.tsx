@@ -7,8 +7,8 @@ import { MobileMenuUI, useMobileMenuOpen } from "@/lib/ui";
 import { CloseIcon } from "./icons";
 
 const MOBILE_NAV = [
-  { label: "For Her",       href: "/shop?category=women" },
-  { label: "For Him",       href: "/shop?category=men" },
+  { label: "Women",         href: "/shop?category=women" },
+  { label: "Men",           href: "/shop?category=men" },
   { label: "Unisex",        href: "/shop?category=unisex" },
   { label: "Best Sellers",  href: "/shop?featured=true" },
   { label: "Search",        href: "/search" },

@@ -17,6 +17,7 @@ type Coupon = {
   discount_type: string;
   amount: string;
   minimum_amount?: string;
+  free_shipping?: boolean;
 };
 
 /** Only percent/fixed_cart are computed client-side for the running total —
@@ -106,7 +107,13 @@ export default function CartPage() {
         throw new Error(`This code needs a minimum order of ${money(minimum)}`);
       }
 
-      setCoupon({ code: data.code, discount_type: data.discount_type, amount: data.amount, minimum_amount: data.minimum_amount });
+      setCoupon({
+        code: data.code,
+        discount_type: data.discount_type,
+        amount: data.amount,
+        minimum_amount: data.minimum_amount,
+        free_shipping: Boolean(data.free_shipping),
+      });
     } catch (err: any) {
       setCoupon(null);
       setCouponError(err.message || "Couldn't apply that code");
@@ -131,9 +138,11 @@ export default function CartPage() {
     window.scrollTo(0, 0);
   }
 
-  // Single flat delivery rate below the free-shipping threshold, free above it.
+  // Single flat delivery rate below the free-shipping threshold, free above
+  // it — or free regardless of subtotal when the applied coupon grants it
+  // (WooCommerce's own "Allow free shipping" checkbox on the coupon).
   const discounted   = subtotal - discount;
-  const shipCharged  = discounted >= FREE_SHIP ? 0 : SHIP_COST;
+  const shipCharged  = coupon?.free_shipping || discounted >= FREE_SHIP ? 0 : SHIP_COST;
   const orderTotal   = discounted + shipCharged;
 
 async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
@@ -435,7 +444,7 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
                     <strong>Delivery</strong>
                     <em>3–5 business days · free over {money(FREE_SHIP)}</em>
                   </span>
-                  <span className="ship-price">{discounted >= FREE_SHIP ? "Free" : money(SHIP_COST)}</span>
+                  <span className="ship-price">{shipCharged === 0 ? "Free" : money(SHIP_COST)}</span>
                 </label>
               </fieldset>
               <fieldset>
@@ -503,7 +512,8 @@ function OrderSummary({
   onRemoveCoupon: () => void;
 }) {
   const discounted = subtotal - discount;
-  const ship = discounted >= FREE_SHIP ? 0 : forCheckout ? shipCost : null;
+  const freeShip = coupon?.free_shipping || discounted >= FREE_SHIP;
+  const ship = freeShip ? 0 : forCheckout ? shipCost : null;
   const total = discounted + (ship || 0);
 
   return (
@@ -566,7 +576,7 @@ function OrderSummary({
         <span>Total</span>
         <span className="tnum">{money(total)}</span>
       </div>
-      {discounted < FREE_SHIP ? (
+      {!freeShip ? (
         <p className="ship-note">Add {money(FREE_SHIP - discounted)} for free delivery.</p>
       ) : (
         <p className="ship-note">✓ Free delivery unlocked.</p>

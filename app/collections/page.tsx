@@ -14,13 +14,13 @@ const ORDER = ["women", "men", "unisex"];
 
 const STATIC_CATS: Record<string, { label: string; tagline: string; blurb: string }> = {
   women: {
-    label: "For Her",
+    label: "Women",
     tagline: "Eau de Parfum",
     blurb:
       "Fragrance for women who don't dress to be noticed — they dress to be remembered. Florals softened with warm woods, musk, and a little audacity.",
   },
   men: {
-    label: "For Him",
+    label: "Men",
     tagline: "Eau de Parfum",
     blurb:
       "Structured, magnetic, unmistakably present. Built on woods, spice, and skin-warm musk — the kind that lingers in a room after he's left it.",
