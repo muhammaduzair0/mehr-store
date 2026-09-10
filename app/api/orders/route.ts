@@ -42,6 +42,23 @@ export async function POST(req: NextRequest) {
     if (!Array.isArray(body?.line_items) || body.line_items.length === 0) {
       return NextResponse.json({ error: 'line_items is required' }, { status: 400 })
     }
+
+    // A leading/trailing space from mobile autofill or a pasted value is
+    // invisible in the checkout field, so the customer sees what looks like
+    // a correct address — but an untrimmed string is a different recipient
+    // to the mail server, and this is the address WooCommerce stores and
+    // the one the confirmation email actually gets sent to below.
+    if (body?.billing) {
+      for (const key of ['email', 'first_name', 'last_name', 'address_1', 'city', 'postcode'] as const) {
+        if (typeof body.billing[key] === 'string') body.billing[key] = body.billing[key].trim()
+      }
+    }
+    if (body?.shipping) {
+      for (const key of ['first_name', 'last_name', 'address_1', 'city', 'postcode'] as const) {
+        if (typeof body.shipping[key] === 'string') body.shipping[key] = body.shipping[key].trim()
+      }
+    }
+
     if (!body?.billing?.email || !EMAIL_RE.test(body.billing.email)) {
       return NextResponse.json({ error: 'A valid billing email is required' }, { status: 400 })
     }

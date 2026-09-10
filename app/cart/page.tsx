@@ -148,14 +148,17 @@ export default function CartPage() {
 async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
   e.preventDefault();
   const form = e.currentTarget;
-  const email        = (form.elements.namedItem("email") as HTMLInputElement)?.value || "";
-  const emailConfirm = (form.elements.namedItem("emailConfirm") as HTMLInputElement)?.value || "";
-  const phone     = (form.elements.namedItem("phone") as HTMLInputElement)?.value || "";
-  const fn        = (form.elements.namedItem("fn")    as HTMLInputElement)?.value || "";
-  const ln        = (form.elements.namedItem("ln")    as HTMLInputElement)?.value || "";
-  const addr      = (form.elements.namedItem("addr")  as HTMLInputElement)?.value || "";
-  const city      = (form.elements.namedItem("city")  as HTMLInputElement)?.value || "";
-  const zip       = (form.elements.namedItem("zip")   as HTMLInputElement)?.value || "";
+  // Trimmed at the source — a trailing space from mobile autofill/autocorrect
+  // is invisible in the input box but would otherwise silently become part
+  // of the address WooCommerce stores and the confirmation email is sent to.
+  const email        = ((form.elements.namedItem("email") as HTMLInputElement)?.value || "").trim();
+  const emailConfirm = ((form.elements.namedItem("emailConfirm") as HTMLInputElement)?.value || "").trim();
+  const phone     = ((form.elements.namedItem("phone") as HTMLInputElement)?.value || "").trim();
+  const fn        = ((form.elements.namedItem("fn")    as HTMLInputElement)?.value || "").trim();
+  const ln        = ((form.elements.namedItem("ln")    as HTMLInputElement)?.value || "").trim();
+  const addr      = ((form.elements.namedItem("addr")  as HTMLInputElement)?.value || "").trim();
+  const city      = ((form.elements.namedItem("city")  as HTMLInputElement)?.value || "").trim();
+  const zip       = ((form.elements.namedItem("zip")   as HTMLInputElement)?.value || "").trim();
   // We only ship within Pakistan (see Shipping & Returns) — WooCommerce needs
   // the ISO 3166-1 alpha-2 code, not the display name, for zones/tax/couriers.
   const country   = "PK";
