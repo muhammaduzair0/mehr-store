@@ -1139,8 +1139,12 @@ textarea {
   display: flex;
   align-items: flex-end;
   min-height: clamp(360px, 42vw, 520px);
-  /* object-fit: contain letterboxes rather than cropping the bottle out of
-     frame — dark to match the scrim/light-text treatment over the photo. */
+  /* object-fit: cover (set in ShopClient.tsx) fills the hero edge to edge,
+     full-bleed — these are now the same wide lifestyle banners used on the
+     homepage category tiles, shot to this section's aspect ratio, so cover
+     no longer crops a product out of frame the way it would on a portrait
+     bottle photo. Background stays dark to match the scrim/light-text
+     treatment for the rare case a banner isn't set and it falls back to one. */
   background: oklch(0.08 0.01 258);
   border-bottom: none;
 }

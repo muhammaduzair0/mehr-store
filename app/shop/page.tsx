@@ -34,20 +34,38 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   return { title: "Shop — Mehr" };
 }
 
+// Same lifestyle banners used as the category showcase tiles' default photo
+// (see CategoryShowcase.tsx) — reused here so a category's shop-page hero
+// and its homepage tile show the same image, not a random product photo.
+const CATEGORY_BANNER_TITLES: Record<string, string> = {
+  men: "Category-Men",
+  women: "Category-Women",
+  unisex: "Category-Unisex",
+};
+
 export default async function ShopPage() {
-  const [productsData, categoriesData] = await Promise.all([
+  const [productsData, categoriesData, bannerEntries] = await Promise.all([
     wc.getProducts({ per_page: "100" }).catch(() => []),
     wc.getCategories().catch(() => []),
+    Promise.all(
+      Object.entries(CATEGORY_BANNER_TITLES).map(async ([slug, title]) => {
+        const media = await wc.getMediaByTitle(title).catch(() => null);
+        return [slug, media?.source_url as string | undefined] as const;
+      })
+    ),
   ]);
 
   const products: WCProduct[] = Array.isArray(productsData) ? productsData : [];
   const categories: WCCategory[] = Array.isArray(categoriesData)
     ? categoriesData.filter((c: WCCategory) => c.slug !== "uncategorized" && c.count > 0)
     : [];
+  const categoryBanners: Record<string, string> = Object.fromEntries(
+    bannerEntries.filter((entry): entry is [string, string] => Boolean(entry[1]))
+  );
 
   return (
     <Suspense fallback={null}>
-      <ShopClient initialProducts={products} initialCategories={categories} />
+      <ShopClient initialProducts={products} initialCategories={categories} categoryBanners={categoryBanners} />
     </Suspense>
   );
 }

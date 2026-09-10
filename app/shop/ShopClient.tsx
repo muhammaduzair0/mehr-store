@@ -48,9 +48,11 @@ const FAQS = [
 interface ShopClientProps {
   initialProducts: WCProduct[];
   initialCategories: WCCategory[];
+  /** Category slug -> lifestyle banner URL, shared with the homepage category showcase tiles */
+  categoryBanners?: Record<string, string>;
 }
 
-export default function ShopClient({ initialProducts, initialCategories }: ShopClientProps) {
+export default function ShopClient({ initialProducts, initialCategories, categoryBanners = {} }: ShopClientProps) {
   const params = useSearchParams();
   const startCat = params.get("category") || "all";
   const bestSellersOnly = params.get("featured") === "true";
@@ -100,12 +102,15 @@ export default function ShopClient({ initialProducts, initialCategories }: ShopC
     return filtered
   }, [products, cat, prices, sort, bestSellersOnly])
 
-  // A representative photo for the active category's hero — pulled from its own products, not a stock image.
+  // The category's own lifestyle banner (shared with its homepage showcase
+  // tile) when one's been uploaded; otherwise fall back to a photo pulled
+  // from one of its own products rather than a stock image.
   const categoryImage = useMemo(() => {
     if (cat === "all") return null
+    if (categoryBanners[cat]) return categoryBanners[cat]
     const match = products.find((p) => p.categories.some((c) => c.slug === cat) && p.images?.[0]?.src)
     return match?.images?.[0]?.src ?? null
-  }, [products, cat])
+  }, [products, cat, categoryBanners])
 
   function clearAll() {
     setCat("all")
@@ -149,7 +154,7 @@ export default function ShopClient({ initialProducts, initialCategories }: ShopC
       ) : activeCategory ? (
         <section className="shop-hero shop-hero--photo">
           {categoryImage && (
-            <Image src={categoryImage} alt="" fill style={{ objectFit: "contain" }} unoptimized priority />
+            <Image src={categoryImage} alt="" fill style={{ objectFit: "cover" }} unoptimized priority />
           )}
           <div className="shop-hero-scrim" />
           <div className="wrap shop-hero-photo-content">
