@@ -2894,6 +2894,18 @@ textarea {
    than letting cover zoom into it. */
 .hc-slide-img { object-fit: cover; object-position: center; z-index: 1; }
 
+/* Desktop never shows this — mobile switches .hc-slide-img to "contain" so
+   the whole product is always visible, and reveals this blurred, oversized
+   copy behind it to fill the letterboxed edges instead of a flat color. */
+.hc-slide-bg {
+  display: none;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  filter: blur(28px) brightness(0.92);
+  transform: scale(1.2);
+}
+
 /* No page-wide dark/light overlay here — legibility for the text comes from
    .hc-content-inner's own frosted panel background instead, so the rest of
    the photo stays clear rather than washed out. */
@@ -3060,25 +3072,28 @@ textarea {
     min-height: 480px;
   }
 
+  /* The product photo is portrait-shot; forcing it to "cover" this
+     landscape-ish mobile box cropped the bottle off at the edges. "contain"
+     keeps the whole product visible, with the blurred .hc-slide-bg layer
+     (see base rules above) filling the letterboxed space behind it. */
+  .hc-slide-bg { display: block; }
+  .hc-slide-img { object-fit: contain; }
+
   .hc-content {
-    /* Side-by-side, same as desktop — image stays fully visible on the left,
-       text sits in its own narrow column on the right, rather than a
-       centered card overlaid on top of the product (which either covered
-       the bottle or, pushed to the edges, still cut into it on a narrow
-       viewport with nowhere clear to sit). Anchored to the bottom rather
-       than vertically centered, so it sits low against the product bases
-       instead of over the label/cap area higher up. */
-    justify-content: flex-end;
+    /* Full-width bar anchored to the bottom, text centered — a narrow card
+       anchored to one side either sat on top of the product or crowded the
+       edge next to the arrow. Centering it under the now-uncropped product
+       and spanning the section keeps it clear of the photo either way. */
+    justify-content: center;
     align-items: flex-end;
-    padding: 0 16px 64px;
+    padding: 0 20px 28px;
   }
 
   .hc-content-inner {
-    width: 46%;
-    align-items: flex-start;
-    justify-content: center;
-    text-align: left;
-    padding: 14px;
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    padding: 18px;
   }
 
   .hc-headline {
@@ -3087,7 +3102,16 @@ textarea {
   }
 
   .hc-bullets {
+    align-items: center;
     margin-bottom: 18px;
+  }
+
+  .hc-bullets li {
+    padding-left: 0;
+  }
+
+  .hc-bullets li::before {
+    content: none;
   }
 
   .hc-shop-btn {
@@ -3103,13 +3127,14 @@ textarea {
   .hc-arrow--prev { left: 12px; }
   .hc-arrow--next { right: 12px; }
 
+  /* Now nested at the end of .hc-content-inner (see HeroCarousel.tsx) —
+     drop the desktop absolute-positioning and let it flow as a centered
+     row beneath the button instead. */
   .hc-dots {
-    right: auto;
-    top: auto;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
+    position: static;
     flex-direction: row;
+    justify-content: center;
+    margin-top: 16px;
   }
 }
 

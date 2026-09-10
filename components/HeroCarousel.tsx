@@ -174,6 +174,10 @@ export default function HeroCarousel() {
       {/* Full-bleed slide images */}
       {slides.map((s, i) => (
         <div key={s.id} className={"hc-image" + (i === current ? " active" : "")}>
+          {/* Blurred cover fill — only shown on mobile (see media query),
+              behind the uncropped "contain" photo, so letterboxed edges
+              blend into the photo itself instead of a flat color bar. */}
+          <Image src={s.image} alt="" fill aria-hidden className="hc-slide-bg" unoptimized />
           <Image
             src={s.image}
             alt={s.label}
@@ -200,6 +204,23 @@ export default function HeroCarousel() {
           <Link href={slide.href} className="hc-shop-btn">
             Shop Now <ArrowIcon />
           </Link>
+
+          {/* Nested inside the text panel (not a section-level sibling) so
+              that on mobile — where the panel becomes a full-width bottom
+              bar — the dots simply flow below the button instead of an
+              absolutely-positioned element needing to guess the panel's
+              height to avoid overlapping it. Desktop is unaffected: it still
+              positions this absolutely against .hc-content, same as before. */}
+          <div className="hc-dots">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                className={"hc-dot" + (i === current ? " active" : "")}
+                onClick={() => goTo(i)}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -216,18 +237,6 @@ export default function HeroCarousel() {
           <path d="M9 18l6-6-6-6" />
         </svg>
       </button>
-
-      {/* Dots — vertical on the right on desktop, bottom-center on mobile */}
-      <div className="hc-dots">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            className={"hc-dot" + (i === current ? " active" : "")}
-            onClick={() => goTo(i)}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
     </section>
   );
 }
