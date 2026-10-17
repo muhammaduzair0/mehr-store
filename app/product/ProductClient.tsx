@@ -163,6 +163,10 @@ export default function ProductClient({ product, related, initialReviews, initia
   const [qty, setQty]           = useState(1);
   const [added, setAdded]       = useState(false);
   const [reviews, setReviews]   = useState<Review[]>(initialReviews);
+  // Set when the notes image URL fails to load (e.g. the file was deleted or
+  // re-uploaded in WordPress without updating the product) — the block is
+  // then hidden and the text "Scent notes" accordion shown instead.
+  const [notesImageFailed, setNotesImageFailed] = useState(false);
 
   // The same client component instance persists across a "related product"
   // navigation (only the `id` search param changes), so local UI state and
@@ -172,6 +176,7 @@ export default function ProductClient({ product, related, initialReviews, initia
     setQty(1);
     setSize(null);
     setAdded(false);
+    setNotesImageFailed(false);
   }, [product.id]);
 
   useEffect(() => {
@@ -188,7 +193,8 @@ export default function ProductClient({ product, related, initialReviews, initia
     ...t,
     options: product.attributes?.find((a) => a.name === t.key)?.options || [],
   })).filter((t) => t.options.length > 0);
-  const notesImage  = product.meta_data?.find((m) => m.key === "_mehr_notes_image")?.value || "";
+  const notesImageUrl = product.meta_data?.find((m) => m.key === "_mehr_notes_image")?.value || "";
+  const notesImage  = notesImageFailed ? "" : notesImageUrl;
   const family      = product.attributes?.find((a) => a.name === "Scent Family")?.options?.[0] || "";
   const categories  = product.categories?.filter((c) => c.slug !== "uncategorized") || [];
   const rating      = parseFloat(product.average_rating || "0");
@@ -454,6 +460,7 @@ export default function ProductClient({ product, related, initialReviews, initia
                 height={840}
                 style={{ width: "100%", height: "auto" }}
                 unoptimized
+                onError={() => setNotesImageFailed(true)}
               />
             </div>
           </div>
