@@ -56,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     posts.status === "fulfilled"
       ? (posts.value || []).map((post) => ({
           url: `${BASE_URL}/blog/${post.slug}`,
-          lastModified: new Date(post.date),
+          lastModified: new Date(post.modified || post.date),
           changeFrequency: "monthly",
           priority: 0.5,
         }))

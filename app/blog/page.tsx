@@ -1,8 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { wp, featuredImage, stripHtml, decodeEntities, type WPPost } from "@/lib/wordpress";
 
-export const metadata = { title: "Journal — Mehr" };
+const DESCRIPTION =
+  "Fragrance guides, scent-note explainers, gifting ideas and the stories behind every Mehr perfume — from long-lasting picks for Pakistan's heat to choosing your signature scent.";
+
+export const metadata: Metadata = {
+  title: "Journal — Mehr",
+  description: DESCRIPTION,
+  alternates: { canonical: "/blog" },
+  openGraph: { title: "The Mehr Journal", description: DESCRIPTION, siteName: "Mehr", type: "website", url: "/blog" },
+};
 export const revalidate = 300;
 
 const fmtDate = (iso: string) =>

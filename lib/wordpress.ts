@@ -10,6 +10,7 @@ export interface WPPost {
   id: number;
   slug: string;
   date: string;
+  modified: string;
   title: { rendered: string };
   excerpt: { rendered: string };
   content: { rendered: string };
@@ -88,8 +89,23 @@ export function buildBlogPostJsonLd(post: WPPost) {
     description: stripHtml(post.excerpt.rendered).slice(0, 200) || undefined,
     image: image || undefined,
     datePublished: post.date,
+    dateModified: post.modified || post.date,
     author: author ? { "@type": "Person", name: author } : { "@type": "Organization", name: "Mehr" },
     publisher: { "@type": "Organization", name: "Mehr", logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+  };
+}
+
+// Home > Journal > Post trail — lets Google show the breadcrumb path in
+// search results instead of the raw URL.
+export function buildBlogBreadcrumbJsonLd(post: WPPost) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Journal", item: `${SITE_URL}/blog` },
+      { "@type": "ListItem", position: 3, name: decodeEntities(post.title.rendered), item: `${SITE_URL}/blog/${post.slug}` },
+    ],
   };
 }

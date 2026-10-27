@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { wp, featuredImage, stripHtml, decodeEntities, buildBlogPostJsonLd } from "@/lib/wordpress";
+import { wp, featuredImage, stripHtml, decodeEntities, buildBlogPostJsonLd, buildBlogBreadcrumbJsonLd } from "@/lib/wordpress";
 
 export const revalidate = 300;
 
@@ -21,11 +21,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${title} — Mehr Journal`,
     description: description || undefined,
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title,
       description: description || undefined,
       siteName: "Mehr",
       type: "article",
+      url: `/blog/${post.slug}`,
+      publishedTime: post.date,
+      modifiedTime: post.modified || post.date,
       images: image ? [{ url: image }] : undefined,
     },
     twitter: {
@@ -51,6 +55,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBlogPostJsonLd(post)) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBlogBreadcrumbJsonLd(post)) }}
+      />
       <main className="wrap blog-post">
         <p className="eyebrow" style={{ marginTop: 40 }}>
           <Link className="ulink" href="/blog">The journal</Link>
@@ -66,8 +74,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         <div className="blog-post-body" dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
 
-        <div style={{ marginTop: 48 }}>
+        <div style={{ marginTop: 48, display: "flex", gap: 12, flexWrap: "wrap" }}>
           <Link className="btn btn-outline" href="/blog">← Back to the journal</Link>
+          <Link className="btn btn-outline" href="/shop">Shop the collection</Link>
         </div>
       </main>
     </>

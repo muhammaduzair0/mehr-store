@@ -3813,4 +3813,40 @@ textarea {
 .blog-post-body h3 {
   font-family: var(--font-display);
   margin: 32px 0 14px;
+}.blog-post-body h2 { font-size: clamp(22px, 2.4vw, 28px); color: var(--ink); }
+.blog-post-body h3 { font-size: 19px; color: var(--ink); }
+.blog-post-body a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
+.blog-post-body ul,
+.blog-post-body ol {
+  margin: 0 0 22px;
+  padding-left: 22px;
+}
+.blog-post-body li { margin-bottom: 8px; }
+.blog-post-body strong { color: var(--ink); }
+.blog-post-body blockquote {
+  margin: 28px 0;
+  padding: 4px 0 4px 20px;
+  border-left: 2px solid var(--line-2);
+  font-style: italic;
+}
+/* Comparison tables in guides — scroll sideways on phones rather than
+   squeezing every column to an unreadable width. */
+.blog-post-body figure.wp-block-table { margin: 0 0 24px; overflow-x: auto; }
+.blog-post-body table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+.blog-post-body th,
+.blog-post-body td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.blog-post-body th { color: var(--ink); font-weight: 600; }
