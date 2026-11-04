@@ -55,7 +55,7 @@ const FAQS = [
   },
   {
     q: "Do you sell impressions of designer perfumes?",
-    a: "Yes. Each Mehr scent is inspired by a well-known fragrance — for example Timeless Aura (inspired by Gissah Imperial Valley), Elia (inspired by Baccarat Rouge 540) and 07 (inspired by Initio Oud for Greatness). See the full list on our Inspired By page.",
+    a: "Yes. Each Mehr scent is inspired by a well-known fragrance — for example Majesty (inspired by Gissah Imperial Valley), Elia (inspired by Baccarat Rouge 540) and Timeless Aura (inspired by Initio Oud for Greatness). See the full list on our Inspired By page.",
   },
   {
     q: "Is Mehr based in Karachi?",
@@ -64,7 +64,7 @@ const FAQS = [
 ];
 
 // Best seller first, then the rest in catalogue order.
-const STAR_SLUG = "timeless-aura";
+const STAR_SLUG = "majesty";
 
 async function getProducts(): Promise<WCProduct[]> {
   try {
@@ -130,8 +130,8 @@ export default async function KarachiPage() {
               {inspiredBy(star) && <span className="karachi-star-sub"> — inspired by {inspiredBy(star)}</span>}
             </h2>
             <p style={{ maxWidth: "62ch", marginTop: 12 }}>
-              Our best-selling perfume. Ginger and a rich woodsy accord over smooth bourbon vanilla — warm,
-              confident and extraordinarily long-lasting, at a fraction of the price of the original.
+              Our best-selling perfume. Bergamot and pink pepper open into rich oud and white amber, settling on
+              leather, musk and vetiver — bold, warm and long-lasting, at a fraction of the price of the original.
             </p>
             <Link className="ulink" href={`/product/${star.slug}`} style={{ display: "inline-block", marginTop: 12 }}>
               Shop {displayName(star.name)}
@@ -158,7 +158,7 @@ export default async function KarachiPage() {
             <p>
               Each Mehr scent is an impression of a fragrance you already know and love — from{" "}
               <Link href="/product/elia">Baccarat Rouge 540</Link> and{" "}
-              <Link href="/product/07">Initio Oud for Greatness</Link> to{" "}
+              <Link href="/product/timeless-aura">Initio Oud for Greatness</Link> to{" "}
               <Link href="/product/amour">Armani Stronger With You Intensely</Link> — at a price that makes sense
               for everyday wear. See every match on our <Link href="/inspired-by">Inspired By</Link> page.
             </p>

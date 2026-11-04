@@ -42,9 +42,9 @@ export default function Home() {
           <h1 className="h-lg home-intro-title">Long-lasting perfume impressions, made in Karachi</h1>
           <p className="muted home-intro-copy">
             40% parfum impressions of the fragrances you love — from{" "}
-            <Link href="/product/timeless-aura">Gissah Imperial Valley</Link> and{" "}
+            <Link href="/product/majesty">Gissah Imperial Valley</Link> and{" "}
             <Link href="/product/elia">Baccarat Rouge 540</Link> to{" "}
-            <Link href="/product/07">Initio Oud for Greatness</Link>. Cash on delivery across Pakistan, with{" "}
+            <Link href="/product/timeless-aura">Initio Oud for Greatness</Link>. Cash on delivery across Pakistan, with{" "}
             <Link href="/perfumes-in-karachi">1–2 day delivery in Karachi</Link>.{" "}
             <Link href="/inspired-by">See every designer match →</Link>
           </p>
