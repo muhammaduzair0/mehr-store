@@ -108,7 +108,7 @@ export function truncateText(text: string, max = 158): string {
 // <p>answer</p> pairs — turn those into FAQPage structured data. Returns null
 // when a post has no FAQ section, so nothing is emitted.
 export function buildFaqJsonLd(html: string) {
-  const start = html.search(/<h2[^>]*>[^<]*(frequently asked|faqs?)[^<]*<\/h2>/i);
+  const start = html.search(/<h2[^>]*>[^<]*(frequently asked|faqs?)\b[^<]*<\/h2>/i);
   if (start === -1) return null;
   const section = html.slice(start);
   const pairs = [...section.matchAll(/<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi)]
