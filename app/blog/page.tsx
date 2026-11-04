@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import { wp, featuredImage, stripHtml, decodeEntities, type WPPost } from "@/lib/wordpress";
 
 const DESCRIPTION =
-  "Fragrance guides, scent-note explainers, gifting ideas and the stories behind every Mehr perfume — from long-lasting picks for Pakistan's heat to choosing your signature scent.";
+  "Mehr perfume blog — designer perfume impressions, long-lasting perfume guides for Karachi's heat, gift ideas and perfume prices in Pakistan.";
 
 export const metadata: Metadata = {
-  title: "Journal — Mehr",
+  title: "Perfume Blog Pakistan — Guides & Impressions | Mehr",
   description: DESCRIPTION,
   alternates: { canonical: "/blog" },
   openGraph: { title: "The Mehr Journal", description: DESCRIPTION, siteName: "Mehr", type: "website", url: "/blog" },
@@ -19,7 +19,7 @@ const fmtDate = (iso: string) =>
 
 async function getPosts(): Promise<WPPost[]> {
   try {
-    return await wp.getPosts({ per_page: "12" });
+    return await wp.getPosts({ per_page: "30" });
   } catch {
     return [];
   }
@@ -32,10 +32,11 @@ export default async function BlogPage() {
     <main>
       <section className="shop-hero">
         <div className="wrap">
-          <p className="eyebrow">The journal</p>
-          <h1 className="h-xl">Notes from the atelier</h1>
-          <p className="lead" style={{ maxWidth: "48ch", marginTop: 14 }}>
-            Stories on scent, sourcing, and the craft behind each bottle.
+          <p className="eyebrow">The Mehr journal</p>
+          <h1 className="h-xl">Perfume guides &amp; designer impressions</h1>
+          <p className="lead" style={{ maxWidth: "56ch", marginTop: 14 }}>
+            Long-lasting perfume guides for Pakistan&apos;s heat, the designer scents behind every Mehr perfume, and
+            gift ideas — from our Karachi atelier.
           </p>
         </div>
       </section>
@@ -58,7 +59,7 @@ export default async function BlogPage() {
                 <article className="blog-card" key={post.id}>
                   <Link className="blog-card-media" href={`/blog/${post.slug}`}>
                     {image ? (
-                      <Image src={image} alt={title} fill style={{ objectFit: "cover" }} />
+                      <Image src={image} alt={title} fill style={{ objectFit: "contain" }} />
                     ) : (
                       <div className="ph" />
                     )}

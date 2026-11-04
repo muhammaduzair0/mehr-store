@@ -87,12 +87,38 @@ export function buildBlogPostJsonLd(post: WPPost) {
     "@type": "BlogPosting",
     headline: title,
     description: stripHtml(post.excerpt.rendered).slice(0, 200) || undefined,
-    image: image || undefined,
+    image: image || `${SITE_URL}/logo.png`,
+    inLanguage: "en-PK",
     datePublished: post.date,
     dateModified: post.modified || post.date,
     author: author ? { "@type": "Person", name: author } : { "@type": "Organization", name: "Mehr" },
     publisher: { "@type": "Organization", name: "Mehr", logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
+  };
+}
+
+// Cut at a word boundary so meta descriptions don't end mid-word.
+export function truncateText(text: string, max = 158): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  return cut.slice(0, cut.lastIndexOf(" ")).replace(/[\s,;:–—-]+$/, "") + "…";
+}
+
+// Posts end with a "Frequently asked questions" <h2> followed by <h3>question</h3>
+// <p>answer</p> pairs — turn those into FAQPage structured data. Returns null
+// when a post has no FAQ section, so nothing is emitted.
+export function buildFaqJsonLd(html: string) {
+  const start = html.search(/<h2[^>]*>[^<]*(frequently asked|faqs?)[^<]*<\/h2>/i);
+  if (start === -1) return null;
+  const section = html.slice(start);
+  const pairs = [...section.matchAll(/<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map((m) => ({ q: stripHtml(m[1]), a: stripHtml(m[2]) }))
+    .filter((x) => x.q && x.a);
+  if (pairs.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: pairs.map((x) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a } })),
   };
 }
 

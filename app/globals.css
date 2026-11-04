@@ -3908,3 +3908,7 @@ textarea {
 .home-intro-title { margin: 12px auto 0; max-width: 24ch; font-weight: 300; }
 .home-intro-copy { margin: 14px auto 0; max-width: 64ch; line-height: 1.7; }
 .home-intro-copy a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+.blog-related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+.blog-related ul { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; }
+.blog-related a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
