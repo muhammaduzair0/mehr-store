@@ -193,7 +193,7 @@ export default function HeroCarousel() {
       <div className="hc-content">
         <div className="hc-content-inner">
           <p className="eyebrow">{slide.eyebrow}</p>
-          <h1 className="hc-headline">{slide.headline}</h1>
+          <h2 className="hc-headline">{slide.headline}</h2>
           {slide.bullets.length > 0 && (
             <ul className="hc-bullets">
               {slide.bullets.map((b, i) => (

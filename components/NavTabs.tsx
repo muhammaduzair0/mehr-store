@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: "Women", href: "/shop?category=women" },
   { label: "Unisex", href: "/shop?category=unisex" },
   { label: "Best Sellers", href: "/shop?featured=true" },
+  { label: "Inspired By", href: "/inspired-by" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];

@@ -3850,3 +3850,61 @@ textarea {
   vertical-align: top;
 }
 .blog-post-body th { color: var(--ink); font-weight: 600; }
+
+/* "Inspired by …" line under the product name (PDP) and on product cards. */
+.pdp-inspired {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-2);
+}
+.pdp-disclaimer {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.card .card-inspired {
+  margin-top: 4px;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink-2);
+}
+
+/* /perfumes-in-karachi */
+.karachi-points { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px 24px; margin: 28px 0 0; }
+.karachi-star { margin-top: 44px; padding: 28px; background: var(--surface); }
+.karachi-star h2 a { color: inherit; }
+.karachi-star-sub { font-size: 0.6em; font-style: italic; color: var(--ink-2); }
+.karachi-areas { line-height: 1.9; max-width: 80ch; margin-top: 10px; }
+
+/* /inspired-by */
+.inspired-list { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.inspired-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+}
+.inspired-row:hover { background: var(--surface); }
+.inspired-thumb { position: relative; width: 64px; height: 64px; background: var(--surface); }
+.inspired-original, .inspired-mehr { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.inspired-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.inspired-name { font-family: var(--font-display); font-size: 17px; color: var(--ink); }
+.inspired-mehr .inspired-name { font-weight: 600; }
+.inspired-price { font-weight: 500; white-space: nowrap; }
+@media (max-width: 640px) {
+  .inspired-row { grid-template-columns: 52px 1fr auto; gap: 12px; }
+  .inspired-thumb { width: 52px; height: 52px; grid-row: 1 / span 2; }
+  .inspired-mehr { grid-column: 2; }
+  .inspired-price { grid-column: 3; grid-row: 1 / span 2; }
+}
+
+/* Homepage intro under the hero — carries the page's H1. */
+.home-intro { padding: clamp(36px, 5vw, 64px) 0 clamp(8px, 2vw, 20px); }
+.home-intro-title { margin: 12px auto 0; max-width: 24ch; font-weight: 300; }
+.home-intro-copy { margin: 14px auto 0; max-width: 64ch; line-height: 1.7; }
+.home-intro-copy a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }

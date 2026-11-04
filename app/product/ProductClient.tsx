@@ -8,6 +8,7 @@ import { Cart } from "@/lib/store";
 import { discountPercent, money } from "@/lib/format";
 import { FREE_SHIP, SHIP_COST } from "@/lib/data";
 import ProductGrid from "@/components/ProductGrid";
+import { inspiredBy, INSPIRED_DISCLAIMER } from "@/lib/inspired";
 
 const NOTE_TIERS = [
   { key: "Top Notes", label: "Top" },
@@ -196,6 +197,7 @@ export default function ProductClient({ product, related, initialReviews, initia
   const notesImageUrl = product.meta_data?.find((m) => m.key === "_mehr_notes_image")?.value || "";
   const notesImage  = notesImageFailed ? "" : notesImageUrl;
   const family      = product.attributes?.find((a) => a.name === "Scent Family")?.options?.[0] || "";
+  const inspired    = inspiredBy(product);
   const categories  = product.categories?.filter((c) => c.slug !== "uncategorized") || [];
   const rating      = parseFloat(product.average_rating || "0");
 
@@ -309,6 +311,7 @@ export default function ProductClient({ product, related, initialReviews, initia
           <div>
             {family && <p className="pdp-type">{family}</p>}
             <h1 className="h-xl" style={{ fontWeight: 300 }}>{product.name}</h1>
+            {inspired && <p className="pdp-inspired">Inspired by {inspired}</p>}
 
             {rating > 0 && product.rating_count > 0 && (
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
@@ -414,12 +417,13 @@ export default function ProductClient({ product, related, initialReviews, initia
               {product.description && (
                 <AccordionItem title="Description" defaultOpen>
                   <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                  {inspired && <p className="pdp-disclaimer">{INSPIRED_DISCLAIMER}</p>}
                 </AccordionItem>
               )}
 
               <AccordionItem title="Shipping &amp; returns">
                 <p>
-                  Orders ship within 1–2 business days and arrive in 3–5 business days nationwide.
+                  Karachi orders arrive in 1–2 business days; the rest of Pakistan in 3–5 business days.
                   Shipping is {money(SHIP_COST)} on orders under {money(FREE_SHIP)}, and free on orders over{" "}
                   {money(FREE_SHIP)}. Cash on Delivery is available at checkout.
                 </p>

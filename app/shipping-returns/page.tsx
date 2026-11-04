@@ -5,7 +5,7 @@ import { FREE_SHIP, SHIP_COST } from "@/lib/data";
 export const metadata = {
   title: "Shipping & Returns — Mehr",
   description:
-    "Mehr ships across Pakistan in 3–5 business days with cash on delivery. Read our shipping rates and 7-day returns policy.",
+    "Mehr delivers in 1–2 business days in Karachi and 3–5 business days across Pakistan, with cash on delivery. Read our shipping rates and 7-day returns policy.",
   alternates: { canonical: "/shipping-returns" },
 };
 
@@ -23,8 +23,8 @@ export default function ShippingReturnsPage() {
         <section className="policy-block">
           <h2 className="h-md" style={{ fontWeight: 300 }}>Shipping</h2>
           <ul className="pdp-assure" style={{ margin: "18px 0 0" }}>
-            <li>Orders ship within 1–2 business days of being placed.</li>
-            <li>Delivery takes 3–5 business days across Pakistan.</li>
+            <li>Karachi: delivered within 1–2 business days of ordering.</li>
+            <li>Rest of Pakistan: ships within 1–2 business days and arrives in 3–5 business days.</li>
             <li>Shipping is {money(SHIP_COST)} on orders under {money(FREE_SHIP)}, and free on orders over {money(FREE_SHIP)}.</li>
             <li>Cash on Delivery is available nationwide.</li>
             <li>We currently ship within Pakistan only.</li>

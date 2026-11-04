@@ -445,7 +445,7 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
                   <input type="radio" name="ship" value="delivery" defaultChecked readOnly />
                   <span>
                     <strong>Delivery</strong>
-                    <em>3–5 business days · free over {money(FREE_SHIP)}</em>
+                    <em>Karachi 1–2 days · rest of Pakistan 3–5 days · free over {money(FREE_SHIP)}</em>
                   </span>
                   <span className="ship-price">{shipCharged === 0 ? "Free" : money(SHIP_COST)}</span>
                 </label>

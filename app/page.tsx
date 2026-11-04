@@ -9,8 +9,17 @@ import Reviews from "@/components/Reviews";
 import { DiscoverSkeleton, CategoryShowcaseSkeleton, BestSellersSkeleton } from "@/components/Skeletons";
 
 
-// Title/description come from the root layout; only the canonical is page-specific.
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+// The layout's brand tagline stays the default for share cards; the homepage
+// <title>/description carry the terms people actually search for.
+const HOME_TITLE = "Mehr — Long-Lasting Perfume Impressions in Pakistan | Karachi";
+const HOME_DESCRIPTION =
+  "Long-lasting 40% parfum impressions of Baccarat Rouge 540, Gissah Imperial Valley, Oud for Greatness & more. Cash on delivery across Pakistan, 1–2 day delivery in Karachi.";
+
+export const metadata: Metadata = {
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: "/" },
+};
 
 // The homepage's product sections now fetch straight from WooCommerce at
 // render time (for SEO — see BestSellers/DiscoverCollection/CategoryShowcase),
@@ -24,6 +33,23 @@ export default function Home() {
     <main>
       {/* HERO */}
       <HeroCarousel />
+
+      {/* INTRO — the page's real H1 + crawlable copy. The hero headline is
+          seasonal, client-rendered banner text, so it's an h2 now. */}
+      <section className="home-intro">
+        <div className="wrap center">
+          <p className="eyebrow">Mehr · Karachi, Pakistan</p>
+          <h1 className="h-lg home-intro-title">Long-lasting perfume impressions, made in Karachi</h1>
+          <p className="muted home-intro-copy">
+            40% parfum impressions of the fragrances you love — from{" "}
+            <Link href="/product/timeless-aura">Gissah Imperial Valley</Link> and{" "}
+            <Link href="/product/elia">Baccarat Rouge 540</Link> to{" "}
+            <Link href="/product/07">Initio Oud for Greatness</Link>. Cash on delivery across Pakistan, with{" "}
+            <Link href="/perfumes-in-karachi">1–2 day delivery in Karachi</Link>.{" "}
+            <Link href="/inspired-by">See every designer match →</Link>
+          </p>
+        </div>
+      </section>
 
       {/* DISCOVER COLLECTION */}
       <Suspense fallback={<DiscoverSkeleton />}>
@@ -43,6 +69,7 @@ export default function Home() {
               <span>Clean ingredients</span><span>·</span>
               <span>40% concentration</span><span>·</span>
               <span>Free delivery over Rs 5,000</span><span>·</span>
+              <span>1–2 day delivery in Karachi</span><span>·</span>
             </span>
           ))}
         </div>

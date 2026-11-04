@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: "How long does delivery take?",
-    a: "Orders ship within 1–2 business days and arrive within 3–5 business days across Pakistan.",
+    a: "Within Karachi, orders arrive in 1–2 business days. Everywhere else in Pakistan, orders ship within 1–2 business days and arrive within 3–5 business days.",
   },
   {
     q: "What payment methods do you accept?",

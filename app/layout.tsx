@@ -58,9 +58,13 @@ export const metadata: Metadata = {
 // Facebook links with this site.
 const organizationJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  // OnlineStore (an Organization subtype): Karachi-based, no walk-in shop,
+  // delivers nationwide — ties the brand to Karachi for local searches.
+  "@type": "OnlineStore",
   name: "Mehr",
   url: SITE_URL,
+  address: { "@type": "PostalAddress", addressLocality: "Karachi", addressRegion: "Sindh", addressCountry: "PK" },
+  areaServed: { "@type": "Country", name: "Pakistan" },
   logo: `${SITE_URL}/logo.png`,
   email: CONTACT_EMAIL,
   sameAs: [INSTAGRAM_URL, TIKTOK_URL, FACEBOOK_URL],

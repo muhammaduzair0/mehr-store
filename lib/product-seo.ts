@@ -3,6 +3,7 @@ import type { WCProduct } from "@/lib/types";
 import { SITE_URL } from "@/lib/site";
 import { decodeEntities } from "@/lib/wordpress";
 import { FREE_SHIP, SHIP_COST } from "@/lib/data";
+import { inspiredBy, displayName } from "@/lib/inspired";
 
 // WooCommerce descriptions are HTML with encoded entities ("&#8211;") — strip
 // tags AND decode, or Next re-escapes the literal entity text and Google shows
@@ -20,18 +21,38 @@ function truncate(text: string, max = 158): string {
 
 export function buildProductMetadata(product: WCProduct): Metadata {
   const image = product.images?.[0]?.src;
-  const description = truncate(plainText(product.short_description || product.description || ""));
   const path = `/product/${product.slug}`;
+  const name = displayName(product.name);
+  const inspired = inspiredBy(product);
+  const price = Number(product.sale_price || product.price || product.regular_price) || 0;
+
+  // The designer name goes in the <title>/description (what people search for:
+  // "Baccarat Rouge 540 impression Pakistan") but never in the product name
+  // itself or the Product JSON-LD name — Merchant Center's counterfeit policy
+  // can disapprove listings that carry another brand's name in the title.
+  // Google cuts titles at ~60 chars; long designer names drop the " Pakistan"
+  // suffix rather than lose the end of the original's name.
+  const inspiredTitle = `${name} – Inspired by ${inspired} | Mehr Pakistan`;
+  const title = inspired
+    ? inspiredTitle.length > 62 ? `${name} – Inspired by ${inspired} | Mehr` : inspiredTitle
+    : `${name} — Mehr`;
+  const description = inspired
+    ? truncate(
+        `${name} by Mehr — a long-lasting ${inspired} impression. 40% parfum, 50 ml${
+          price ? `, Rs ${price.toLocaleString("en-PK")}` : ""
+        }. Cash on delivery & 1–2 day delivery in Karachi.`
+      )
+    : truncate(plainText(product.short_description || product.description || ""));
 
   return {
-    title: `${product.name} — Mehr`,
+    title,
     description: description || undefined,
     alternates: { canonical: path },
     // openGraph fully replaces the layout's default (metadata objects are
     // shallowly merged per-segment, not deep-merged), so re-declare siteName
     // and fall back to the site logo when the product has no photo yet.
     openGraph: {
-      title: product.name,
+      title,
       description: description || undefined,
       siteName: "Mehr",
       type: "website",
@@ -40,7 +61,7 @@ export function buildProductMetadata(product: WCProduct): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      title: product.name,
+      title,
       description: description || undefined,
       images: [image || "/logo.png"],
     },

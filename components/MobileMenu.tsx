@@ -11,6 +11,7 @@ const MOBILE_NAV = [
   { label: "Men",           href: "/shop?category=men" },
   { label: "Unisex",        href: "/shop?category=unisex" },
   { label: "Best Sellers",  href: "/shop?featured=true" },
+  { label: "Inspired By",   href: "/inspired-by" },
   { label: "Search",        href: "/search" },
   { label: "Blog",          href: "/blog" },
   { label: "Contact",       href: "/contact" },

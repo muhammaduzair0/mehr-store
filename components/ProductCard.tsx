@@ -6,6 +6,7 @@ import { WCProduct } from "@/lib/types";
 import { Cart } from "@/lib/store";
 import { BagIcon, StarIcon } from "./icons";
 import { money } from "@/lib/format";
+import { inspiredBy } from "@/lib/inspired";
 
 // WooCommerce leaves `price` blank ("") on variable products until the
 // min/max variation prices are synced — Number("") is 0, which renders as
@@ -25,6 +26,7 @@ export default function ProductCard({ p, rank }: { p: WCProduct; rank?: number }
   const image2 = p.images?.[1]?.src;
   const soldOut = p.stock_status !== "instock";
   const family = p.attributes?.find((a) => a.name === "Scent Family")?.options?.[0] || "";
+  const inspired = inspiredBy(p);
   const priceNum = resolvePrice(p);
   const rating = Math.round(Number(p.average_rating) || 0);
 
@@ -71,6 +73,7 @@ export default function ProductCard({ p, rank }: { p: WCProduct; rank?: number }
       </div>
       <Link href={`/product/${p.slug}`}>
         <div className="card-name">{p.name}</div>
+        {inspired && <div className="card-inspired">Inspired by {inspired}</div>}
         {family && <div className="card-cat">{family}</div>}
         <div className="card-rating" aria-label={`Rated ${rating} out of 5`}>
           {Array.from({ length: 5 }).map((_, i) => (

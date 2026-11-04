@@ -56,6 +56,7 @@ export default function Footer() {
               <li><Link href="/shop?category=men">Men</Link></li>
               <li><Link href="/shop?category=unisex">Unisex</Link></li>
               <li><Link href="/shop?featured=true">Best Sellers</Link></li>
+              <li><Link href="/inspired-by">Inspired By</Link></li>
             </ul>
           </div>
 
@@ -74,6 +75,7 @@ export default function Footer() {
             <ul>
               <li><Link href="/contact">Contact Us</Link></li>
               <li><Link href="/shipping-returns">Shipping &amp; Returns</Link></li>
+              <li><Link href="/perfumes-in-karachi">Perfume Delivery in Karachi</Link></li>
               <li><Link href="/find-your-scent">Find Your Scent</Link></li>
               <li><Link href="/faq">FAQ</Link></li>
             </ul>
