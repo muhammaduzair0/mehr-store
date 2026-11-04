@@ -41,13 +41,28 @@ export default function Home() {
           <p className="eyebrow">Mehr · Karachi, Pakistan</p>
           <h1 className="h-lg home-intro-title">Long-lasting perfume impressions, made in Karachi</h1>
           <p className="muted home-intro-copy">
-            40% parfum impressions of the fragrances you love — from{" "}
-            <Link href="/product/majesty">Gissah Imperial Valley</Link> and{" "}
-            <Link href="/product/elia">Baccarat Rouge 540</Link> to{" "}
-            <Link href="/product/timeless-aura">Initio Oud for Greatness</Link>. Cash on delivery across Pakistan, with{" "}
-            <Link href="/perfumes-in-karachi">1–2 day delivery in Karachi</Link>.{" "}
-            <Link href="/inspired-by">See every designer match →</Link>
+            Our own 40% parfum compositions, inspired by the world&rsquo;s most-loved fragrances.
           </p>
+          <ul className="home-intro-matches" aria-label="Popular designer impressions">
+            {[
+              ["/product/majesty", "Majesty", "Gissah Imperial Valley"],
+              ["/product/elia", "Elia", "Baccarat Rouge 540"],
+              ["/product/timeless-aura", "Timeless Aura", "Initio Oud for Greatness"],
+            ].map(([href, name, original]) => (
+              <li key={href}>
+                <Link href={href} className="home-intro-chip">
+                  <span className="home-intro-chip-name">{name}</span>
+                  <span className="home-intro-chip-orig">Inspired by {original}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link href="/inspired-by" className="home-intro-all">See every designer match &rarr;</Link>
+          <ul className="home-intro-trust">
+            <li>40% parfum · 50 ml</li>
+            <li>Cash on delivery across Pakistan</li>
+            <li><Link href="/perfumes-in-karachi">1–2 day delivery in Karachi</Link></li>
+          </ul>
         </div>
       </section>
 

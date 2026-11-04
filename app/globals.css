@@ -3904,10 +3904,26 @@ textarea {
 }
 
 /* Homepage intro under the hero — carries the page's H1. */
-.home-intro { padding: clamp(36px, 5vw, 64px) 0 clamp(8px, 2vw, 20px); }
-.home-intro-title { margin: 12px auto 0; max-width: 24ch; font-weight: 300; }
-.home-intro-copy { margin: 14px auto 0; max-width: 64ch; line-height: 1.7; }
-.home-intro-copy a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.home-intro { padding: clamp(40px, 6vw, 72px) 0 clamp(16px, 3vw, 32px); }
+.home-intro-title { margin: 14px auto 0; max-width: 22ch; font-weight: 300; }
+.home-intro-copy { margin: 16px auto 0; max-width: 46ch; line-height: 1.65; font-size: 1.05rem; }
+.home-intro-matches { list-style: none; padding: 0; margin: 28px auto 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 860px; }
+.home-intro-chip { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 14px 24px; min-width: 200px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); text-decoration: none; transition: border-color .2s, transform .2s, box-shadow .2s; }
+.home-intro-chip:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: 0 6px 18px -10px oklch(0.22 0.038 258 / .35); }
+.home-intro-chip-name { font-family: var(--font-display); font-size: 1.15rem; }
+.home-intro-chip-orig { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.home-intro-all { display: inline-block; margin-top: 18px; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+.home-intro-trust { list-style: none; padding: 0; margin: 26px auto 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 0; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.home-intro-trust li { padding: 0 16px; }
+.home-intro-trust li + li { border-left: 1px solid var(--line); }
+.home-intro-trust a { color: inherit; text-decoration: none; }
+.home-intro-trust a:hover { color: var(--ink); }
+@media (max-width: 600px) {
+  .home-intro-chip { min-width: 0; width: 100%; }
+  .home-intro-matches li { width: 100%; }
+  .home-intro-trust { flex-direction: column; gap: 6px; }
+  .home-intro-trust li + li { border-left: 0; }
+}
 
 .blog-related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
 .blog-related ul { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; }
