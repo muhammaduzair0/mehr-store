@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-export const metadata = { title: "Sustainability — Mehr" };
+export const metadata = {
+  title: "Sustainability — Mehr",
+  description:
+    "How Mehr approaches sustainability — from sourcing raw materials to packaging.",
+  alternates: { canonical: "/sustainability" },
+};
 
 export default function SustainabilityPage() {
   return (

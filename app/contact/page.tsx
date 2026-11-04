@@ -1,7 +1,12 @@
 import ContactClient from "./ContactClient";
 import { CONTACT_EMAIL, WHATSAPP_URL, INSTAGRAM_URL, FACEBOOK_URL, TIKTOK_URL } from "@/lib/contact";
 
-export const metadata = { title: "Contact — Mehr" };
+export const metadata = {
+  title: "Contact — Mehr",
+  description:
+    "Get in touch with Mehr on WhatsApp or email for orders, delivery, returns or help choosing a fragrance.",
+  alternates: { canonical: "/contact" },
+};
 
 export default function ContactPage() {
   return (

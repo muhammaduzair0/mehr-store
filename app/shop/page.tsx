@@ -22,16 +22,23 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     return {
       title: "Best Sellers — Mehr",
       description: "The scents our customers reach for again and again — ranked by what actually sells.",
+      alternates: { canonical: "/shop?featured=true" },
     };
   }
   if (category) {
     const name = titleCase(category);
     return {
-      title: `${name} — Shop — Mehr`,
-      description: `Explore our ${name} collection.`,
+      title: `${name} Perfumes — Shop — Mehr`,
+      description: `Shop Mehr's ${name.toLowerCase()} perfumes — long-lasting 40% parfum concentration, delivered across Pakistan with cash on delivery.`,
+      alternates: { canonical: `/shop?category=${encodeURIComponent(category)}` },
     };
   }
-  return { title: "Shop — Mehr" };
+  return {
+    title: "Shop All Perfumes — Mehr",
+    description:
+      "Shop the full Mehr fragrance collection — long-lasting 40% parfum concentration perfumes for men, women and unisex, delivered across Pakistan with cash on delivery.",
+    alternates: { canonical: "/shop" },
+  };
 }
 
 // Same lifestyle banners used as the category showcase tiles' default photo

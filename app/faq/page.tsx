@@ -2,7 +2,12 @@ import FaqAccordion from "@/components/FaqAccordion";
 import { money } from "@/lib/format";
 import { FREE_SHIP, SHIP_COST } from "@/lib/data";
 
-export const metadata = { title: "FAQ — Mehr" };
+export const metadata = {
+  title: "FAQ — Mehr",
+  description:
+    "Answers about Mehr perfumes — how long they last, delivery times across Pakistan, cash on delivery, shipping costs and returns.",
+  alternates: { canonical: "/faq" },
+};
 
 const FAQS = [
   {

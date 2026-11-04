@@ -1,7 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export const metadata = { title: "Our Story — Mehr" };
+export const metadata = {
+  title: "Our Story — Mehr",
+  description:
+    "The story behind Mehr — fragrance made the slow way in Pakistan, at 40% parfum concentration, with raw materials chosen for how they evolve on skin.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (

@@ -2,7 +2,12 @@ import Link from "next/link";
 import { money } from "@/lib/format";
 import { FREE_SHIP, SHIP_COST } from "@/lib/data";
 
-export const metadata = { title: "Shipping & Returns — Mehr" };
+export const metadata = {
+  title: "Shipping & Returns — Mehr",
+  description:
+    "Mehr ships across Pakistan in 3–5 business days with cash on delivery. Read our shipping rates and 7-day returns policy.",
+  alternates: { canonical: "/shipping-returns" },
+};
 
 export default function ShippingReturnsPage() {
   return (

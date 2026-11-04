@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-export const metadata = { title: "Find Your Scent — Mehr" };
+export const metadata = {
+  title: "Find Your Scent — Mehr",
+  description:
+    "Take the Mehr scent quiz — answer a few quick questions and find the perfume that matches your style, season and occasion.",
+  alternates: { canonical: "/find-your-scent" },
+};
 
 const GUIDE = [
   {

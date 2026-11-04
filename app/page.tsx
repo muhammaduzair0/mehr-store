@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import HeroCarousel from "@/components/HeroCarousel";
 import DiscoverCollection from "@/components/DiscoverCollection";
@@ -6,6 +7,10 @@ import CategoryShowcase from "@/components/CategoryShowcase";
 import BestSellers from "@/components/BestSellers";
 import Reviews from "@/components/Reviews";
 import { DiscoverSkeleton, CategoryShowcaseSkeleton, BestSellersSkeleton } from "@/components/Skeletons";
+
+
+// Title/description come from the root layout; only the canonical is page-specific.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 // The homepage's product sections now fetch straight from WooCommerce at
 // render time (for SEO — see BestSellers/DiscoverCollection/CategoryShowcase),

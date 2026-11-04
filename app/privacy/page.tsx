@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/contact";
 
-export const metadata = { title: "Privacy Policy — Mehr" };
+export const metadata = {
+  title: "Privacy Policy — Mehr",
+  description:
+    "How Mehr collects, uses and protects your personal information when you shop with us.",
+  alternates: { canonical: "/privacy" },
+};
 
 const LAST_UPDATED = "18 August 2026";
 

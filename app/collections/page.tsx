@@ -3,7 +3,12 @@ import Link from "next/link";
 import { money } from "@/lib/format";
 import { wc } from "@/lib/woocommerce";
 
-export const metadata = { title: "Collections — Mehr" };
+export const metadata = {
+  title: "Collections — Mehr",
+  description:
+    "Explore Mehr's fragrance collections for men, women and unisex — long-lasting 40% parfum concentration perfumes, delivered across Pakistan.",
+  alternates: { canonical: "/collections" },
+};
 
 // Fetched from WooCommerce at render time, which Next would otherwise bake
 // into the static build once and never touch again — revalidate periodically

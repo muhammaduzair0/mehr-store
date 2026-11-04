@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/contact";
 
-export const metadata = { title: "Terms of Service — Mehr" };
+export const metadata = {
+  title: "Terms of Service — Mehr",
+  description:
+    "The terms and conditions for shopping at themehr.net.",
+  alternates: { canonical: "/terms" },
+};
 
 const LAST_UPDATED = "18 August 2026";
 
