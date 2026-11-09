@@ -138,10 +138,9 @@ export default function CartPage() {
     window.scrollTo(0, 0);
   }
 
-  // Single flat delivery rate on every order — free only when the applied
-  // coupon grants it (WooCommerce's own "Allow free shipping" checkbox).
+  // Free delivery on every order, with or without a coupon.
   const discounted   = subtotal - discount;
-  const shipCharged  = coupon?.free_shipping ? 0 : SHIP_COST;
+  const shipCharged  = SHIP_COST;
   const orderTotal   = discounted + shipCharged;
 
 async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
@@ -223,8 +222,8 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
           quantity: i.qty,
         })),
         shipping_lines: [{
-          method_id:    shipCharged > 0 ? "flat_rate" : "free_shipping",
-          method_title: "Delivery",
+          method_id:    "free_shipping",
+          method_title: "Free delivery",
           total:        String(shipCharged),
         }],
         coupon_lines: coupon ? [{ code: coupon.code }] : [],
@@ -330,7 +329,6 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
                 <OrderSummary
                   items={items}
                   subtotal={subtotal}
-                  forCheckout={false}
                   shipCost={SHIP_COST}
                   coupon={coupon}
                   discount={discount}
@@ -446,7 +444,7 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
                     <strong>Delivery</strong>
                     <em>Karachi 1–2 days · rest of Pakistan 3–5 days</em>
                   </span>
-                  <span className="ship-price">{shipCharged === 0 ? "Free" : money(SHIP_COST)}</span>
+                  <span className="ship-price">Free</span>
                 </label>
               </fieldset>
               <fieldset>
@@ -467,7 +465,6 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
               <OrderSummary
                 items={items}
                 subtotal={subtotal}
-                forCheckout
                 shipCost={SHIP_COST}
                 coupon={coupon}
                 discount={discount}
@@ -489,7 +486,6 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
 function OrderSummary({
   items,
   subtotal,
-  forCheckout,
   shipCost,
   coupon,
   discount,
@@ -502,7 +498,6 @@ function OrderSummary({
 }: {
   items: ReturnType<typeof useCart>;
   subtotal: number;
-  forCheckout: boolean;
   shipCost: number;
   coupon: Coupon | null;
   discount: number;
@@ -514,8 +509,7 @@ function OrderSummary({
   onRemoveCoupon: () => void;
 }) {
   const discounted = subtotal - discount;
-  const freeShip = !!coupon?.free_shipping;
-  const ship = freeShip ? 0 : forCheckout ? shipCost : null;
+  const ship = shipCost;
   const total = discounted + (ship || 0);
 
   return (
@@ -572,13 +566,13 @@ function OrderSummary({
       )}
       <div className="summary-row">
         <span>Shipping</span>
-        {ship === null ? <span className="muted">Calculated at checkout</span> : <span className="tnum">{ship === 0 ? "Free" : money(ship)}</span>}
+        <span className="tnum">Free</span>
       </div>
       <div className="summary-row total">
         <span>Total</span>
         <span className="tnum">{money(total)}</span>
       </div>
-      <p className="ship-note">Flat {money(shipCost)} delivery anywhere in Pakistan · Cash on delivery</p>
+      <p className="ship-note">Free delivery anywhere in Pakistan · Cash on delivery</p>
     </>
   );
 }

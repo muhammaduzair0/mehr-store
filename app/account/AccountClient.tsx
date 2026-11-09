@@ -361,8 +361,8 @@ export default function AccountClient() {
                     <span>Orders placed</span>
                   </button>
                   <Link className="ov-stat" href="/shipping-returns">
-                    <span className="serif-num">Rs 200</span>
-                    <span>Flat delivery across Pakistan</span>
+                    <span className="serif-num">Free</span>
+                    <span>Delivery across Pakistan</span>
                   </Link>
                 </div>
                 <h2 className="acct-h">Most recent order</h2>

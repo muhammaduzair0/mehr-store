@@ -83,7 +83,7 @@ export default function Home() {
             <span key={i} style={{ display: "contents" }}>
               <span>Clean ingredients</span><span>·</span>
               <span>40% concentration</span><span>·</span>
-              <span>Flat Rs 200 delivery across Pakistan</span><span>·</span>
+              <span>Free delivery across Pakistan</span><span>·</span>
               <span>1–2 day delivery in Karachi</span><span>·</span>
             </span>
           ))}

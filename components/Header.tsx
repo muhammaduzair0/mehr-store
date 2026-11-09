@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { money } from "@/lib/format";
-import { SALE_END, SHIP_COST } from "@/lib/data";
+import { SALE_END } from "@/lib/data";
 import { useCart } from "@/lib/store";
 import { CartDrawerUI, MobileMenuUI } from "@/lib/ui";
 import { BagIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
@@ -25,7 +24,7 @@ export default function Header() {
           </>
         ) : (
           <>
-            Flat {money(SHIP_COST)} delivery across Pakistan · Cash on delivery ·{" "}
+            Free delivery across Pakistan · Cash on delivery ·{" "}
             <Link href="/shop">Shop now</Link>
           </>
         )}

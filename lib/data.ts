@@ -1,5 +1,5 @@
-/** Flat delivery fee on every order, anywhere in Pakistan. */
-export const SHIP_COST = 200;
+/** Free delivery on every order, anywhere in Pakistan. */
+export const SHIP_COST = 0;
 
 /** 11.11 sale window — the announcement bar shows the sale until this moment
  * (Pakistan time). Product sale prices end at the same time in WooCommerce. */

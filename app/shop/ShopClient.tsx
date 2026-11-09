@@ -147,7 +147,7 @@ export default function ShopClient({ initialProducts, initialCategories, categor
             <ul className="attr-strip">
               <li>40% parfum concentration</li>
               <li>Cash on Delivery</li>
-              <li>Flat Rs 200 delivery</li>
+              <li>Free delivery</li>
             </ul>
           </div>
         </section>

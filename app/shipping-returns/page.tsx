@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { money } from "@/lib/format";
-import { SHIP_COST } from "@/lib/data";
 
 export const metadata = {
   title: "Shipping & Returns — Mehr",
@@ -25,7 +23,7 @@ export default function ShippingReturnsPage() {
           <ul className="pdp-assure" style={{ margin: "18px 0 0" }}>
             <li>Karachi: delivered within 1–2 business days of ordering.</li>
             <li>Rest of Pakistan: ships within 1–2 business days and arrives in 3–5 business days.</li>
-            <li>Delivery is a flat {money(SHIP_COST)} on every order, anywhere in Pakistan.</li>
+            <li>Delivery is free on every order, anywhere in Pakistan.</li>
             <li>Cash on Delivery is available nationwide.</li>
             <li>We currently ship within Pakistan only.</li>
           </ul>

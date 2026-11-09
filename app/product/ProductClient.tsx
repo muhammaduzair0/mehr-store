@@ -6,7 +6,6 @@ import Link from "next/link";
 import { WCProduct, WCVariation } from "@/lib/types";
 import { Cart } from "@/lib/store";
 import { discountPercent, money } from "@/lib/format";
-import { SHIP_COST } from "@/lib/data";
 import ProductGrid from "@/components/ProductGrid";
 import { inspiredBy, INSPIRED_DISCLAIMER } from "@/lib/inspired";
 
@@ -404,7 +403,7 @@ export default function ProductClient({ product, related, initialReviews, initia
             </div>
 
             <ul className="pdp-assure">
-              <li>Flat {money(SHIP_COST)} delivery anywhere in Pakistan</li>
+              <li>Free delivery anywhere in Pakistan</li>
               <li>Cash on Delivery available nationwide</li>
               <li>100% authentic — shipped direct from Mehr</li>
             </ul>
@@ -424,7 +423,7 @@ export default function ProductClient({ product, related, initialReviews, initia
               <AccordionItem title="Shipping &amp; returns">
                 <p>
                   Karachi orders arrive in 1–2 business days; the rest of Pakistan in 3–5 business days.
-                  Delivery is a flat {money(SHIP_COST)} on every order, anywhere in Pakistan. Cash on Delivery is
+                  Delivery is free on every order, anywhere in Pakistan. Cash on Delivery is
                   available at checkout.
                 </p>
               </AccordionItem>

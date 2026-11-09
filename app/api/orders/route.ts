@@ -68,6 +68,13 @@ export async function POST(req: NextRequest) {
     }
     body.billing.phone = phoneDigits
 
+    // Enforce free delivery even for older checkout clients sending a flat rate.
+    body.shipping_lines = [{
+      method_id: 'free_shipping',
+      method_title: 'Free delivery',
+      total: '0',
+    }]
+
     const order = await wc.createOrder(body)
 
     // The order is already placed in WooCommerce at this point — an email

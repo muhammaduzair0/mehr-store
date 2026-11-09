@@ -4,8 +4,6 @@ import FaqAccordion from "@/components/FaqAccordion";
 import ProductGrid from "@/components/ProductGrid";
 import { wc } from "@/lib/woocommerce";
 import type { WCProduct } from "@/lib/types";
-import { money } from "@/lib/format";
-import { SHIP_COST } from "@/lib/data";
 import { WHATSAPP_URL } from "@/lib/contact";
 import { SITE_URL } from "@/lib/site";
 import { inspiredBy, displayName } from "@/lib/inspired";
@@ -47,7 +45,7 @@ const FAQS = [
   },
   {
     q: "How much is delivery in Karachi?",
-    a: `Delivery is a flat ${money(SHIP_COST)} on every order, anywhere in Karachi and the rest of Pakistan.`,
+    a: `Delivery is free on every order, anywhere in Karachi and the rest of Pakistan.`,
   },
   {
     q: "Are Mehr perfumes long-lasting in Karachi's heat and humidity?",
@@ -118,7 +116,7 @@ export default async function KarachiPage() {
         <ul className="pdp-assure karachi-points">
           <li>1–2 day delivery anywhere in Karachi</li>
           <li>Cash on delivery — pay when it arrives</li>
-          <li>Flat {money(SHIP_COST)} delivery</li>
+          <li>Free delivery</li>
           <li>40% parfum concentration, 50 ml bottles</li>
         </ul>
 
