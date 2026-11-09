@@ -20,7 +20,7 @@ export default function Header() {
       <div className="announce">
         {Date.now() < SALE_END.getTime() ? (
           <>
-            <strong>11.11 Sale</strong> · 20% off the entire collection · Ends Nov 12 ·{" "}
+            <strong>11.11 Sale</strong> · 20% off the entire collection · Ends Nov 11 ·{" "}
             <Link href="/shop">Shop now</Link>
           </>
         ) : (
