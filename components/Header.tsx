@@ -25,7 +25,7 @@ export default function Header() {
           </>
         ) : (
           <>
-            10% off with code <strong>WELCOME10</strong> · Flat {money(SHIP_COST)} delivery across Pakistan ·{" "}
+            Flat {money(SHIP_COST)} delivery across Pakistan · Cash on delivery ·{" "}
             <Link href="/shop">Shop now</Link>
           </>
         )}

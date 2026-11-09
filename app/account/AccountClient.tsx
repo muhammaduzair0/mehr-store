@@ -360,9 +360,9 @@ export default function AccountClient() {
                     <span className="serif-num">{orders.length}</span>
                     <span>Orders placed</span>
                   </button>
-                  <Link className="ov-stat" href="/shop">
-                    <span className="serif-num">10%</span>
-                    <span>Off with WELCOME10</span>
+                  <Link className="ov-stat" href="/shipping-returns">
+                    <span className="serif-num">Rs 200</span>
+                    <span>Flat delivery across Pakistan</span>
                   </Link>
                 </div>
                 <h2 className="acct-h">Most recent order</h2>
