@@ -1,6 +1,6 @@
 import FaqAccordion from "@/components/FaqAccordion";
 import { money } from "@/lib/format";
-import { FREE_SHIP, SHIP_COST } from "@/lib/data";
+import { SHIP_COST } from "@/lib/data";
 
 export const metadata = {
   title: "FAQ — Mehr",
@@ -27,8 +27,8 @@ const FAQS = [
     a: "Cash on Delivery is available on every order. Online card payment is coming soon.",
   },
   {
-    q: "Do you offer free shipping?",
-    a: `Shipping is ${money(SHIP_COST)} on orders under ${money(FREE_SHIP)}, and free on orders over ${money(FREE_SHIP)}.`,
+    q: "How much is delivery?",
+    a: `Delivery is a flat ${money(SHIP_COST)} on every order, anywhere in Pakistan.`,
   },
   {
     q: "Can I change or cancel my order?",

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { money } from "@/lib/format";
-import { FREE_SHIP } from "@/lib/data";
+import { SALE_END, SHIP_COST } from "@/lib/data";
 import { useCart } from "@/lib/store";
 import { CartDrawerUI, MobileMenuUI } from "@/lib/ui";
 import { BagIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
@@ -18,8 +18,17 @@ export default function Header() {
     <>
       {/* Row 1 — Announcement */}
       <div className="announce">
-        10% off with code <strong>WELCOME10</strong> · Free shipping over{" "}
-        {money(FREE_SHIP)} · <Link href="/shop">Shop now</Link>
+        {Date.now() < SALE_END.getTime() ? (
+          <>
+            <strong>11.11 Sale</strong> · 20% off the entire collection · Ends Nov 12 ·{" "}
+            <Link href="/shop">Shop now</Link>
+          </>
+        ) : (
+          <>
+            10% off with code <strong>WELCOME10</strong> · Flat {money(SHIP_COST)} delivery across Pakistan ·{" "}
+            <Link href="/shop">Shop now</Link>
+          </>
+        )}
       </div>
 
       <header className="site-header">

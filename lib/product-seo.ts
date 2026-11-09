@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { WCProduct } from "@/lib/types";
 import { SITE_URL } from "@/lib/site";
 import { decodeEntities } from "@/lib/wordpress";
-import { FREE_SHIP, SHIP_COST } from "@/lib/data";
+import { SHIP_COST } from "@/lib/data";
 import { inspiredBy, displayName } from "@/lib/inspired";
 
 // WooCommerce descriptions are HTML with encoded entities ("&#8211;") — strip
@@ -74,7 +74,7 @@ export function buildProductMetadata(product: WCProduct): Metadata {
 function shippingDetails(price: number) {
   return {
     "@type": "OfferShippingDetails",
-    shippingRate: { "@type": "MonetaryAmount", value: price >= FREE_SHIP ? 0 : SHIP_COST, currency: "PKR" },
+    shippingRate: { "@type": "MonetaryAmount", value: SHIP_COST, currency: "PKR" },
     shippingDestination: { "@type": "DefinedRegion", addressCountry: "PK" },
     deliveryTime: {
       "@type": "ShippingDeliveryTime",

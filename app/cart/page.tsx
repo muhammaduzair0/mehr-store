@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FREE_SHIP, SHIP_COST } from "@/lib/data";
+import { SHIP_COST } from "@/lib/data";
 import { money } from "@/lib/format";
 import { AddressBook, Auth, Cart, Orders, useAddress, useCart, useUser } from "@/lib/store";
 import ProductGrid from "@/components/ProductGrid";
@@ -138,11 +138,10 @@ export default function CartPage() {
     window.scrollTo(0, 0);
   }
 
-  // Single flat delivery rate below the free-shipping threshold, free above
-  // it — or free regardless of subtotal when the applied coupon grants it
-  // (WooCommerce's own "Allow free shipping" checkbox on the coupon).
+  // Single flat delivery rate on every order — free only when the applied
+  // coupon grants it (WooCommerce's own "Allow free shipping" checkbox).
   const discounted   = subtotal - discount;
-  const shipCharged  = coupon?.free_shipping || discounted >= FREE_SHIP ? 0 : SHIP_COST;
+  const shipCharged  = coupon?.free_shipping ? 0 : SHIP_COST;
   const orderTotal   = discounted + shipCharged;
 
 async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
@@ -445,7 +444,7 @@ async function placeOrder(e: React.FormEvent<HTMLFormElement>) {
                   <input type="radio" name="ship" value="delivery" defaultChecked readOnly />
                   <span>
                     <strong>Delivery</strong>
-                    <em>Karachi 1–2 days · rest of Pakistan 3–5 days · free over {money(FREE_SHIP)}</em>
+                    <em>Karachi 1–2 days · rest of Pakistan 3–5 days</em>
                   </span>
                   <span className="ship-price">{shipCharged === 0 ? "Free" : money(SHIP_COST)}</span>
                 </label>
@@ -515,7 +514,7 @@ function OrderSummary({
   onRemoveCoupon: () => void;
 }) {
   const discounted = subtotal - discount;
-  const freeShip = coupon?.free_shipping || discounted >= FREE_SHIP;
+  const freeShip = !!coupon?.free_shipping;
   const ship = freeShip ? 0 : forCheckout ? shipCost : null;
   const total = discounted + (ship || 0);
 
@@ -579,11 +578,7 @@ function OrderSummary({
         <span>Total</span>
         <span className="tnum">{money(total)}</span>
       </div>
-      {!freeShip ? (
-        <p className="ship-note">Add {money(FREE_SHIP - discounted)} for free delivery.</p>
-      ) : (
-        <p className="ship-note">✓ Free delivery unlocked.</p>
-      )}
+      <p className="ship-note">Flat {money(shipCost)} delivery anywhere in Pakistan · Cash on delivery</p>
     </>
   );
 }

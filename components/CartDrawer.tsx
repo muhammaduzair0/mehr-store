@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
-import { FREE_SHIP } from "@/lib/data";
+import { SHIP_COST } from "@/lib/data";
 import { money } from "@/lib/format";
 import { Cart, useCart } from "@/lib/store";
 import { CartDrawerUI, useCartDrawerOpen } from "@/lib/ui";
@@ -13,7 +13,6 @@ export default function CartDrawer() {
   const open = useCartDrawerOpen();
   const items = useCart();
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
-  const toFree = Math.max(0, FREE_SHIP - subtotal);
   const count = items.reduce((n, i) => n + i.qty, 0);
 
   useEffect(() => {
@@ -96,9 +95,7 @@ export default function CartDrawer() {
               <span className="tnum">{money(subtotal)}</span>
             </div>
             <p className="ship-note">
-              {toFree > 0
-                ? `You're ${money(toFree)} away from free delivery.`
-                : "You've unlocked free delivery."}
+              Flat {money(SHIP_COST)} delivery anywhere in Pakistan.
             </p>
             <Link className="btn btn-primary btn-block" href="/cart" onClick={CartDrawerUI.close}>
               Checkout
