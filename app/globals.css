@@ -3069,6 +3069,18 @@ textarea {
   transform: scale(1.15);
 }
 
+/* Poster slides — finished campaign artwork with its own text. Show the whole
+   image (contain) over its own blurred copy, no frosted text panel, and make
+   the full banner clickable. Dots stay visible. */
+.hc-image--poster .hc-slide-bg { display: block; }
+.hc-image--poster .hc-slide-img { object-fit: contain; }
+.hc-poster-link { position: absolute; inset: 0; z-index: 2; }
+.hc-content--poster { pointer-events: none; }
+.hc-content--poster .hc-content-inner { background: transparent; backdrop-filter: none; padding: 0; }
+.hc-content--poster .hc-dots { pointer-events: auto; }
+.hc-content--poster .hc-dot { border-color: #fff; }
+.hc-content--poster .hc-dot.active { background: #fff; }
+
 /* Mobile */
 @media (max-width: 860px) {
   .hero-carousel {

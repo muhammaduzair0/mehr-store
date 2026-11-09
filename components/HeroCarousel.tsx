@@ -14,6 +14,9 @@ interface Slide {
   image: string;
   category: string;
   bullets: string[];
+  /** A finished, designed banner (text already in the artwork): shown whole,
+   *  clickable, with no text panel on top. */
+  poster: boolean;
 }
 
 interface HeroBanner {
@@ -94,8 +97,10 @@ export default function HeroCarousel() {
       for (let i = 0; i < SLIDE_DEFAULTS.length; i++) {
         const def = SLIDE_DEFAULTS[i];
         const banner = banners[i];
+        // Headline set to "-" in wp-admin = poster slide (artwork carries its own text).
+        const poster = banner?.headline?.trim() === "-" && !!banner?.image;
         const eyebrow = banner?.eyebrow || def.eyebrow;
-        const headline = banner?.headline || def.headline;
+        const headline = poster ? def.label : banner?.headline || def.headline;
         const href = banner?.href || def.href;
         const bullets = banner?.bullets?.length ? banner.bullets : [];
         let image = banner?.image || "";
@@ -116,7 +121,7 @@ export default function HeroCarousel() {
           }
         }
         used.add(image);
-        results.push({ id: i, label: def.label, category: def.category, eyebrow, headline, href, image, bullets });
+        results.push({ id: i, label: poster ? eyebrow : def.label, category: def.category, eyebrow, headline, href, image, bullets, poster });
       }
       setSlides(results);
       setLoading(false);
@@ -173,7 +178,7 @@ export default function HeroCarousel() {
     >
       {/* Full-bleed slide images */}
       {slides.map((s, i) => (
-        <div key={s.id} className={"hc-image" + (i === current ? " active" : "")}>
+        <div key={s.id} className={"hc-image" + (s.poster ? " hc-image--poster" : "") + (i === current ? " active" : "")}>
           {/* Blurred cover fill — only shown on mobile (see media query),
               behind the uncropped "contain" photo, so letterboxed edges
               blend into the photo itself instead of a flat color bar. */}
@@ -189,9 +194,15 @@ export default function HeroCarousel() {
         </div>
       ))}
 
+      {/* Poster slides: the whole banner is the link */}
+      {slide.poster && (
+        <Link href={slide.href} className="hc-poster-link" aria-label={slide.label} />
+      )}
+
       {/* Text content, overlaid on the image */}
-      <div className="hc-content">
+      <div className={"hc-content" + (slide.poster ? " hc-content--poster" : "")}>
         <div className="hc-content-inner">
+          {!slide.poster && <>
           <p className="eyebrow">{slide.eyebrow}</p>
           <h2 className="hc-headline">{slide.headline}</h2>
           {slide.bullets.length > 0 && (
@@ -204,6 +215,7 @@ export default function HeroCarousel() {
           <Link href={slide.href} className="hc-shop-btn">
             Shop Now <ArrowIcon />
           </Link>
+          </>}
 
           {/* Nested inside the text panel (not a section-level sibling) so
               that on mobile — where the panel becomes a full-width bottom
