@@ -25,6 +25,8 @@ export interface WCProduct {
   type: string;
   status: string;
   catalog_visibility: string;
+  date_on_sale_from_gmt?: string | null;
+  date_on_sale_to_gmt?: string | null;
   average_rating: string;
   rating_count: number;
   related_ids: number[];

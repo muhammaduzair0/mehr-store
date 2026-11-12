@@ -8,6 +8,12 @@ type Props = {
   searchParams: Promise<{ category?: string; featured?: string }>;
 };
 
+const CATEGORY_TITLE: Record<string, string> = {
+  men: "Men's Perfumes",
+  women: "Women's Perfumes",
+  unisex: "Unisex Perfumes",
+};
+
 function titleCase(slug: string) {
   return slug
     .split("-")
@@ -20,16 +26,16 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
   if (featured === "true") {
     return {
-      title: "Best Sellers — Mehr",
-      description: "The scents our customers reach for again and again — ranked by what actually sells.",
+      title: "Best-Selling Perfumes in Pakistan | Mehr",
+      description: "Mehr's best-selling perfumes in Pakistan — Majesty, Elia, Kafka and more. Long-lasting 40% parfum, free delivery and cash on delivery nationwide.",
       alternates: { canonical: "/shop?featured=true" },
     };
   }
   if (category) {
-    const name = titleCase(category);
+    const name = CATEGORY_TITLE[category] || `${titleCase(category)} Perfumes`;
     return {
-      title: `${name} Perfumes — Shop — Mehr`,
-      description: `Shop Mehr's ${name.toLowerCase()} perfumes — long-lasting 40% parfum concentration, delivered across Pakistan with cash on delivery.`,
+      title: `${name} in Pakistan — Long-Lasting | Mehr`,
+      description: `Shop Mehr's ${name.toLowerCase()} in Pakistan — long-lasting 40% parfum impressions, free delivery, 1–2 days in Karachi and cash on delivery nationwide.`,
       alternates: { canonical: `/shop?category=${encodeURIComponent(category)}` },
     };
   }

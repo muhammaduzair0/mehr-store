@@ -6,6 +6,7 @@ import type { WCProduct } from "@/lib/types";
 import { money } from "@/lib/format";
 import { SITE_URL } from "@/lib/site";
 import { inspiredBy, displayName, INSPIRED_DISCLAIMER } from "@/lib/inspired";
+import { currentPrice } from "@/lib/price";
 
 // Hub for "<designer perfume> impression/alternative Pakistan" searches: one
 // row per original, linking to the matching Mehr product. Driven entirely by
@@ -75,7 +76,7 @@ export default async function InspiredByPage() {
         ) : (
           <div className="inspired-list">
             {products.map((p) => {
-              const price = Number(p.sale_price || p.price || p.regular_price) || 0;
+              const price = currentPrice(p);
               const image = p.images?.[0]?.src;
               return (
                 <Link key={p.id} href={`/product/${p.slug}`} className="inspired-row">

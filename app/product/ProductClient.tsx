@@ -7,7 +7,7 @@ import { WCProduct, WCVariation } from "@/lib/types";
 import { Cart } from "@/lib/store";
 import { discountPercent, money } from "@/lib/format";
 import ProductGrid from "@/components/ProductGrid";
-import { inspiredBy, INSPIRED_DISCLAIMER } from "@/lib/inspired";
+import { inspiredBy, INSPIRED_DISCLAIMER, COMPARISON_POST } from "@/lib/inspired";
 
 const NOTE_TIERS = [
   { key: "Top Notes", label: "Top" },
@@ -310,7 +310,19 @@ export default function ProductClient({ product, related, initialReviews, initia
           <div>
             {family && <p className="pdp-type">{family}</p>}
             <h1 className="h-xl" style={{ fontWeight: 300 }}>{product.name}</h1>
-            {inspired && <p className="pdp-inspired">Inspired by {inspired}</p>}
+            {inspired && (
+              <p className="pdp-inspired">
+                Inspired by {inspired}
+                {COMPARISON_POST[product.slug] && (
+                  <>
+                    {" · "}
+                    <Link href={`/blog/${COMPARISON_POST[product.slug]}`} className="pdp-compare">
+                      How close is it?
+                    </Link>
+                  </>
+                )}
+              </p>
+            )}
 
             {rating > 0 && product.rating_count > 0 && (
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>

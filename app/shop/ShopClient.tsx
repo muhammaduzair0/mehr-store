@@ -1,7 +1,7 @@
 "use client";
 
 import { WCProduct, WCCategory } from "@/lib/types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,6 +19,57 @@ const PRICE_RANGES = [
 type SortKey = "featured" | "price-asc" | "price-desc" | "name";
 
 /** Editorial copy per category slug — shown on the photographic category hero. */
+// Keyword H1s — the category name alone ("Men") tells Google little.
+const CATEGORY_H1: Record<string, string> = {
+  men: "Men's Perfumes",
+  women: "Women's Perfumes",
+  unisex: "Unisex Perfumes",
+}
+
+// Unique, crawlable copy per category page. Without it the category pages
+// differ from /shop only by which cards are shown, and Google folds them into
+// /shop as duplicates.
+const CATEGORY_SEO: Record<string, { h2: string; body: ReactNode }> = {
+  men: {
+    h2: "Long-lasting men's perfumes in Pakistan",
+    body: (
+      <>
+        Every Mehr men&rsquo;s perfume is a 40% parfum, built to last through Karachi heat and long wedding nights.
+        Our best seller <Link href="/product/majesty">Majesty</Link> is inspired by Gissah Imperial Valley; <Link href="/product/vasl">Vasl</Link> (inspired
+        by Azzaro Wanted) is the summer daily; <Link href="/product/humnafas">Humnafas</Link> (Office for Men) is the clean office scent;
+        <Link href="/product/amour">Amour</Link> (Stronger With You Intensely) and <Link href="/product/memory-of-you">Memory of You</Link> (Afnan 9PM Elixir)
+        are for evenings; and <Link href="/product/timeless-aura">Timeless Aura</Link> (Oud for Greatness), <Link href="/product/kafka">Kafka</Link> (Marj)
+        and <Link href="/product/07">07</Link> (Reef 33) bring oud and saffron. Delivery is free anywhere in Pakistan — 1–2 days in
+        Karachi — with cash on delivery.
+      </>
+    ),
+  },
+  women: {
+    h2: "Long-lasting women's perfumes in Pakistan",
+    body: (
+      <>
+        Mehr&rsquo;s women&rsquo;s perfumes are 40% parfum impressions of the fragrances women in Pakistan love most.
+        <Link href="/product/velvet-sky">Velvet Sky</Link> is inspired by Carolina Herrera Good Girl, <Link href="/product/moonlight">Moonlight</Link> by YSL
+        Black Opium, <Link href="/product/whisper">Whisper</Link> by YSL Libre, and <Link href="/product/arwaah">Arwaah</Link> by Tom Ford Black Orchid.
+        Each is a 50 ml bottle made in Karachi, delivered free across Pakistan with cash on delivery — a
+        favourite for Eid, weddings and gifting.
+      </>
+    ),
+  },
+  unisex: {
+    h2: "Unisex perfumes in Pakistan",
+    body: (
+      <>
+        Fragrances anyone can wear: <Link href="/product/elia">Elia</Link> (inspired by Baccarat Rouge 540), <Link href="/product/majesty">Majesty</Link>
+        (Gissah Imperial Valley), <Link href="/product/kafka">Kafka</Link> (Ahmed Al Maghribi Marj), <Link href="/product/07">07</Link> (Reef 33),
+        <Link href="/product/arwaah">Arwaah</Link> (Tom Ford Black Orchid), <Link href="/product/vasl">Vasl</Link>, <Link href="/product/amour">Amour</Link> and
+        <Link href="/product/memory-of-you">Memory of You</Link>. All are 40% parfum, 50 ml, made in Karachi and delivered across
+        Pakistan free, with cash on delivery.
+      </>
+    ),
+  },
+}
+
 const CATEGORY_COPY: Record<string, string> = {
   "women":
     "Fragrance for women who don't dress to be noticed — they dress to be remembered. Florals softened with warm woods, musk, and a little audacity.",
@@ -163,7 +214,7 @@ export default function ShopClient({ initialProducts, initialCategories, categor
               <span>/</span>
               <span>{activeCategory.name}</span>
             </p>
-            <h1 className="h-xl">{activeCategory.name}</h1>
+            <h1 className="h-xl">{CATEGORY_H1[activeCategory.slug] || activeCategory.name}</h1>
             <p className="lead" style={{ maxWidth: "52ch", marginTop: 14 }}>
               {CATEGORY_COPY[activeCategory.slug] || `Explore our ${activeCategory.name} collection.`}
             </p>
@@ -299,6 +350,18 @@ export default function ShopClient({ initialProducts, initialCategories, categor
           )}
         </section>
       </div>
+
+      {activeCategory && !bestSellersOnly && CATEGORY_SEO[activeCategory.slug] && (
+        <section className="section-sm shop-seo">
+          <div className="wrap" style={{ maxWidth: 820 }}>
+            <h2 className="h-md" style={{ fontWeight: 300 }}>{CATEGORY_SEO[activeCategory.slug].h2}</h2>
+            <p className="muted shop-seo-body">{CATEGORY_SEO[activeCategory.slug].body}</p>
+            <p className="shop-seo-more">
+              <Link href="/inspired-by">See every designer match →</Link>
+            </p>
+          </div>
+        </section>
+      )}
 
       {activeCategory && !bestSellersOnly && (
         <section className="section-sm shop-faq">

@@ -3940,3 +3940,10 @@ textarea {
 .blog-related { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
 .blog-related ul { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; }
 .blog-related a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Category intro copy on /shop?category=… (unique text per category for SEO) */
+.shop-seo { border-top: 1px solid var(--line); }
+.shop-seo-body { margin-top: 14px; line-height: 1.75; }
+.shop-seo-body a, .shop-seo-more a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.shop-seo-more { margin-top: 14px; font-size: .85rem; letter-spacing: .06em; }
+.pdp-compare { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }

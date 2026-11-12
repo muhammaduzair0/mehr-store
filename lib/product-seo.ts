@@ -4,6 +4,7 @@ import { SITE_URL } from "@/lib/site";
 import { decodeEntities } from "@/lib/wordpress";
 import { SHIP_COST } from "@/lib/data";
 import { inspiredBy, displayName } from "@/lib/inspired";
+import { currentPrice } from "@/lib/price";
 
 // WooCommerce descriptions are HTML with encoded entities ("&#8211;") — strip
 // tags AND decode, or Next re-escapes the literal entity text and Google shows
@@ -24,7 +25,7 @@ export function buildProductMetadata(product: WCProduct): Metadata {
   const path = `/product/${product.slug}`;
   const name = displayName(product.name);
   const inspired = inspiredBy(product);
-  const price = Number(product.sale_price || product.price || product.regular_price) || 0;
+  const price = currentPrice(product);
 
   // The designer name goes in the <title>/description (what people search for:
   // "Baccarat Rouge 540 impression Pakistan") but never in the product name
@@ -93,7 +94,7 @@ const RETURN_POLICY = {
 };
 
 export function buildProductJsonLd(product: WCProduct) {
-  const price = product.sale_price || product.price || product.regular_price;
+  const price = String(currentPrice(product));
   return {
     "@context": "https://schema.org",
     "@type": "Product",

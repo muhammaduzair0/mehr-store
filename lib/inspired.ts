@@ -21,3 +21,21 @@ export function displayName(name: string): string {
 
 export const INSPIRED_DISCLAIMER =
   "Mehr is an independent fragrance house and is not affiliated with or endorsed by the brands named; their names are used only to describe the scent profile.";
+
+// Each product's "<original> impression" comparison post on the blog.
+// Linked from the product page so Google finds the posts and connects the two.
+export const COMPARISON_POST: Record<string, string> = {
+  majesty: "gissah-imperial-valley-impression-pakistan",
+  elia: "baccarat-rouge-540-impression-pakistan",
+  "timeless-aura": "initio-oud-for-greatness-impression-pakistan",
+  "07": "reef-33-impression-pakistan",
+  kafka: "ahmed-al-maghribi-marj-impression-pakistan",
+  humnafas: "office-for-men-impression-pakistan",
+  vasl: "azzaro-wanted-impression-pakistan",
+  amour: "stronger-with-you-intensely-impression-pakistan",
+  "velvet-sky": "good-girl-impression-pakistan",
+  moonlight: "black-opium-impression-pakistan",
+  whisper: "ysl-libre-impression-pakistan",
+  arwaah: "tom-ford-black-orchid-impression-pakistan",
+  "memory-of-you": "afnan-9pm-elixir-impression-pakistan",
+};
