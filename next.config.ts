@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: wcRemotePattern(),
   },
+  // The production server has 1 CPU and also runs WordPress. A build pre-renders
+  // pages that fetch from WordPress; the defaults (many pages in parallel, three
+  // retries) queued 150+ Apache workers and took the API down for several
+  // minutes during the Nov 12 2026 deploy. Fetch gently instead.
+  experimental: {
+    staticGenerationMaxConcurrency: 2,
+    staticGenerationMinPagesPerWorker: 50,
+    staticGenerationRetryCount: 1,
+  },
 };
 
 export default nextConfig;
